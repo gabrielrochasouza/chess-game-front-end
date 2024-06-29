@@ -41,7 +41,7 @@ export function DashboardNav({ items, setOpen }: DashboardNavProps) {
                                 if (item.label === 'logout') {
                                     localStorage.removeItem('@Token');
                                     localStorage.removeItem('@UserId');
-                                    toast.success('Logout')
+                                    toast.success('Logout');
                                 }
                                 if (setOpen) setOpen(false);
                             }}

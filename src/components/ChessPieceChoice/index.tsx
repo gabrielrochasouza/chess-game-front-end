@@ -9,7 +9,7 @@ import { socket } from '../../socket-client/socket';
 function ChessPieceChoice() {
     const [colorSelected, setColorSelected] = useState<string>(null);
     const selectPiece = (color: colorType) => {
-        setColorSelected(color)
+        setColorSelected(color);
         socket.emit('connect', 'connected');
     };
 
@@ -21,7 +21,7 @@ function ChessPieceChoice() {
         socket.on('disconnect', (payload) => {
             console.log('disconnect:', payload);
         });
-    }, [])
+    }, []);
 
     return (
         <>

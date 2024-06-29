@@ -1,6 +1,9 @@
 import { DashboardNav } from '@/components/dashboard-nav';
 import { cn } from '@/lib/utils';
 import { Icons } from '@/components/icons';
+import { Link } from 'react-router-dom';
+import { MenubarSeparator } from '@/components/ui/menubar';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 interface NavItem {
@@ -47,6 +50,25 @@ export default function Sidebar() {
                         </h2>
                         <DashboardNav items={navItems} />
                     </div>
+                    <MenubarSeparator />
+                    <ScrollArea className='h-full'>
+                        <div className="space-y-1 mt-4">
+                            <h2 className="mb-2 px-4 text-xl font-semibold tracking-tight">
+                        Rooms
+                            </h2>
+                            <Link
+                                to={'/dashboard/room/fgdfgsr'}
+                            >
+                                <span
+                                    className={cn(
+                                        'group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground'
+                                    )}
+                                >
+                                    <span>Teste</span>
+                                </span>
+                            </Link>
+                        </div>
+                    </ScrollArea>
                 </div>
             </div>
         </nav>

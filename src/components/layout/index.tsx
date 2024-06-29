@@ -13,11 +13,15 @@ const Layout = ({
             <div className="flex h-screen overflow-hidden">
                 <Sidebar />
                 <main className="w-full pt-14 overflow-auto">
-                    {children}
+                    <ScrollArea className="h-full">
+                        <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+                            {children}
+                        </div>
+                    </ScrollArea>
                 </main>
             </div>
         </ScrollArea>
-    )
-}
+    );
+};
 
 export default Layout;

@@ -1,6 +1,6 @@
 import { useState, useCallback, MouseEvent, useEffect } from 'react';
 import chessBoardInstance from '../../models/ChessBoard';
-import './index.css'
+import './index.css';
 import { chessBoardType, colorType, pieceNamesType } from '../../models/types';
 import BlackBishop from '../../assets/svg/black_bishop.svg';
 import BlackRook from '../../assets/svg/black_rook.svg';
@@ -51,21 +51,20 @@ function ChessBoard({ chessPieceSide }: IChessBoardComponent) { // TODO: should 
             selectedLine, selectedColumn, targetLine, targetColumn
         }: Payload): void => {
             if (chessPieceSide !== turnOfPlay) {
-                chessBoardInstance.selectPiece(selectedLine, selectedColumn)
-                chessBoardInstance.movePiece(targetLine, targetColumn)
-                forceUpdate()
+                chessBoardInstance.selectPiece(selectedLine, selectedColumn);
+                chessBoardInstance.movePiece(targetLine, targetColumn);
+                forceUpdate();
             }
-        }
+        };
         socket.on('message', (payload: Payload) => {
-            console.log('payload', payload);
-            movePieceOfAdversary(payload)
+            movePieceOfAdversary(payload);
         });
-    }, [turnOfPlay, chessPieceSide, forceUpdate, roomId])
+    }, [turnOfPlay, chessPieceSide, forceUpdate, roomId]);
 
     const clickOnCellHandler = (targetLine: number, targetColumn: number) => {
         if (!checkMate && chessPieceSide === turnOfPlay) {
             if (chessBoardInstance.mode === 'selectPiece') {
-                chessBoardInstance.selectPiece(targetLine, targetColumn)
+                chessBoardInstance.selectPiece(targetLine, targetColumn);
             } else if (chessBoardInstance.mode === 'movePiece' && chessBoard[targetLine][targetColumn].isPossibleToMove) {
                 chessBoardInstance.movePiece(targetLine, targetColumn);
                 const message: Payload = {
@@ -76,45 +75,45 @@ function ChessBoard({ chessPieceSide }: IChessBoardComponent) { // TODO: should 
                 };
                 socket.emit('message', message);
             } else if (chessBoardInstance.mode === 'movePiece' && chessBoard[targetLine][targetColumn].currentPiece?.color === turnOfPlay) {
-                chessBoardInstance.selectPiece(targetLine, targetColumn)
+                chessBoardInstance.selectPiece(targetLine, targetColumn);
             } else {
                 chessBoardInstance.changeModeToSelectMode();
             }
-            forceUpdate()
+            forceUpdate();
         }
-    }
+    };
 
     const restartGameHandler = () => {
         chessBoardInstance.startGame();
         forceUpdate();
-    }
+    };
 
     const pieceSelectionHandler = (pieceName: pieceNamesType) => {
         chessBoardInstance.setSelectedPieceInPawnPlace(pieceName);
         forceUpdate();
-    }
+    };
 
     const onDragStopHandler = (e: MouseEvent<HTMLElement>, l: number, c: number) => {
         const element = e.target as HTMLInputElement;
-        element.style.zIndex = '10'
+        element.style.zIndex = '10';
         const squareSize = document.querySelector('.square').clientWidth;
         const transform = element.style.transform;
 
         if (transform) {
-            const [deltaC, deltaL] = element.style.transform.split('(')[1].replace(')', '').split(',').map(n => Math.round(Number(n.slice(0, -2)) / squareSize))
+            const [deltaC, deltaL] = element.style.transform.split('(')[1].replace(')', '').split(',').map(n => Math.round(Number(n.slice(0, -2)) / squareSize));
             const newL = chessPieceSide === 'white' ? l + deltaL : l - deltaL;
             const newC = chessPieceSide === 'white' ? c + deltaC : c - deltaC;
             if ((newL >= 0 && newL <= 7) && (newC >= 0 && newC <= 7)) {
                 clickOnCellHandler(newL, newC);
             }
         }
-    }
+    };
 
     const onDragStartHandler = (e: MouseEvent<HTMLElement>, l: number, c: number) => {
-        clickOnCellHandler(l, c)
+        clickOnCellHandler(l, c);
         const element = e.target as HTMLInputElement;
-        element.style.zIndex = '20'
-    }
+        element.style.zIndex = '20';
+    };
 
     const ChessBoardComponent = chessPieceSide === 'white' ? chessBoard : chessBoard.map(line => line.slice(0).reverse()).slice(0).reverse();
 
@@ -213,7 +212,7 @@ function ChessBoard({ chessPieceSide }: IChessBoardComponent) { // TODO: should 
                 <span>Playing as {chessPieceSide}</span>
             </div>
         </div>
-    )
+    );
 }
 
 export default ChessBoard;

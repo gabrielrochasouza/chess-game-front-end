@@ -4,10 +4,11 @@ import Room from '../pages/room';
 import Login from '@/pages/login';
 import Register from '@/pages/register';
 import PrivateRoute from './privateRoute';
+import Profile from '@/pages/profile';
 
 const router = createBrowserRouter([
     {
-        path: '/',
+        path: '/dashboard',
         element: (
             <PrivateRoute>
                 <Dashboard />
@@ -15,7 +16,15 @@ const router = createBrowserRouter([
         ),
     },
     {
-        path: '/room/:roomId',
+        path: '/dashboard/profile',
+        element: (
+            <PrivateRoute>
+                <Profile />
+            </PrivateRoute>
+        ),
+    },
+    {
+        path: '/dashboard/room/:roomId',
         element: (
             <PrivateRoute>
                 <Room />

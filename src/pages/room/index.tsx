@@ -1,36 +1,36 @@
 import {useParams} from 'react-router-dom';
-import { validate as isValidUUID } from 'uuid';
-import {Navigate} from 'react-router-dom';
 import Layout from '@/components/layout';
 import ChessBoard from '@/components/ChessBoard';
 import { useEffect, useState } from 'react';
 import { socket } from '@/socket-client/socket';
 import { colorType } from '@/models/types';
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import { Link } from 'react-router-dom';
+import { Separator } from '@/components/ui/separator';
 
 
 const Room = ()=> {
-    const [room, setRoom] = useState();
+    const [, setRoom] = useState();
     const [sender, setSender] = useState<string>();
     const { roomId } = useParams();
     const [chessPieceSide, setChessPieceSide] = useState<colorType>();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
-    if(!isValidUUID(roomId)) {
-        return <Navigate to={'/'} />
-    }
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(()=> {
         socket.emit('joinRoom', roomId);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        socket.on('joinRoom', (roomInfo: any) => {
+        socket.on('joinRoom', (roomInfo) => {
+            console.log('roomInfo', roomInfo);
             const room = roomInfo.room;
             const currentRoom = room[roomId];
             if (currentRoom.length <= 2) {
                 setRoom(roomInfo.room);
-                console.log('sender', sender);
                 if (!sender) {
-                    setSender(roomInfo.sender)
+                    setSender(roomInfo.sender);
                 }
                 if ( currentRoom && Array.isArray(currentRoom) && !chessPieceSide) {
                     const index = currentRoom.findIndex(r => r === roomInfo.sender);
@@ -38,14 +38,35 @@ const Room = ()=> {
                 }
             }
         });
-    }, [roomId])
+    }, [roomId]);
 
     return (
         <Layout>
-            {room && JSON.stringify(room[roomId])}
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink>
+                            <Link to={'/dashboard'}>Dashboard</Link>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink>
+                            Room
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink className='text-white'>
+                            {roomId}
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
+            <Separator />
             <ChessBoard chessPieceSide={chessPieceSide} />
         </Layout>
-    )
+    );
 };
 
 export default Room;

@@ -1,62 +1,62 @@
 import WhiteQueen from '@/assets/svg/white_queen.svg';
-import { Link } from 'react-router-dom';
-import * as Avatar from '@radix-ui/react-avatar';
-import * as Menubar from '@radix-ui/react-menubar';
+import { Link, useNavigate } from 'react-router-dom';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+    Menubar,
+    MenubarContent,
+    MenubarItem,
+    MenubarMenu,
+    MenubarSeparator,
+    MenubarShortcut,
+    MenubarTrigger,
+} from '@/components/ui/menubar';
 import { useUsers } from '@/provider/users';
-import '../../../app/header-style.css';
-import { LogOut, User } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 export default function Header() {
     const { playerInfo } = useUsers();
+    const navigate = useNavigate();
+
+    const logout = () => {
+        localStorage.removeItem('@Token');
+        localStorage.removeItem('@UserId');
+        toast.success('Logout');
+        navigate('/login');
+    };
 
     return (
         <div className="fixed top-0 left-0 right-0 supports-backdrop-blur:bg-background/60 border-b bg-background/95 backdrop-blur z-20">
             <nav className="h-14 flex items-center justify-between px-4">
-                <div className="hidden lg:block">
+                <div className="block">
                     <Link to={'/'}>
-                        <img src={WhiteQueen}/>
+                        <img src={WhiteQueen}/> 
                     </Link>
                 </div>
-                <div className='mr-4'>
-                    <Menubar.Root className='left-4'>
-                        <Menubar.Menu>
-                            <Menubar.Trigger className="MenubarTrigger">
-                                <Avatar.Root className="AvatarRoot">
-                                    <Avatar.Image
-                                        className="AvatarImage"
-                                        src={playerInfo?.profilePic}
-                                        alt={playerInfo?.username}
-                                    />
-                                    <Avatar.Fallback className="AvatarFallback">
-                                        {playerInfo?.username}
-                                        
-                                    </Avatar.Fallback>
-                                </Avatar.Root>
-                            </Menubar.Trigger>
-                            <Menubar.Portal>
-                                <Menubar.Content
-                                    className="MenubarContent"
-                                    align="start"
-                                    sideOffset={5}
-                                    alignOffset={-14}
-                                >
-                                    <Menubar.Item className="MenubarItem">
-                                        User: {playerInfo?.username}
-                                        <div className="RightSlot">
-                                            <User />
-                                        </div>
-                                    </Menubar.Item>
-                                    <Menubar.Separator className="MenubarSeparator" />
-                                    <Menubar.Item className="MenubarItem">
-                                        Logout
-                                        <div className="RightSlot">
-                                            <LogOut />
-                                        </div>
-                                    </Menubar.Item>
-                                </Menubar.Content>
-                            </Menubar.Portal>
-                        </Menubar.Menu>
-                    </Menubar.Root>
+                <div className='lg:mr-4'>
+                    <Menubar className='p-0 m-0 bg-transparent rounded-full'>
+                        <MenubarMenu>
+                            <MenubarTrigger className='p-0 m-0 rounded-full'>
+                                <Avatar>
+                                    <AvatarImage src={playerInfo?.profilePic} className='object-cover' />
+                                    <AvatarFallback>C</AvatarFallback>
+                                </Avatar>
+                            </MenubarTrigger>
+                            <MenubarContent>
+                                <MenubarItem>
+                                    {playerInfo?.username}
+                                    <MenubarShortcut>Username</MenubarShortcut>
+                                </MenubarItem>
+                                <MenubarItem>
+                                    <Link to={'/dashboard/profile'}>
+                                        Edit Profile
+                                    </Link>
+                                </MenubarItem>
+                                <MenubarSeparator />
+                                <MenubarItem onClick={logout}>Logout</MenubarItem>
+                            </MenubarContent>
+                        </MenubarMenu>
+                    </Menubar>
+                    
                 </div>
             </nav>
         </div>

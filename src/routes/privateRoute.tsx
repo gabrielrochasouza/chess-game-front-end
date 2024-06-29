@@ -3,6 +3,7 @@ import { useUsers } from '@/provider/users';
 import { socket } from '@/socket-client/socket';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { Socket } from 'socket.io-client';
 
 interface PrivateRouteProps {
@@ -12,7 +13,7 @@ interface PrivateRouteProps {
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
     const { setOnlineUsers, setPlayerInfo } = useUsers();
     const [isAuthenticated, setIsAuthenticated] = useState(true);
-
+    
     useEffect(()=> {
         socket.on('handleConnection', (payload: {sender: string, numberOfUsers: number, users: Map<string, Socket>}) => {
             setOnlineUsers(payload.numberOfUsers);
@@ -28,10 +29,11 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
             })
             .catch(() => {
                 setIsAuthenticated(false);
-                localStorage.removeItem('@Token')
-                localStorage.removeItem('@UserId')
-            })
-    }, [])
+                toast.error('Invalid Token Logout');
+                localStorage.removeItem('@Token');
+                localStorage.removeItem('@UserId');
+            });
+    }, []);
 
     if (!localStorage.getItem('@Token')) {
         return <Navigate to="login" />;

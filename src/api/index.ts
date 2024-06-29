@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 const api = axios.create({
     // baseURL: process.env['DEV_API_URL'],
     baseURL: 'http://localhost:3333'
-})
+});
 
 export const registerUser = async (userData: { username: string, password: string }) => {
     try {
@@ -16,7 +16,7 @@ export const registerUser = async (userData: { username: string, password: strin
         toast.error(e.response.data.message);
         return false;
     }
-}
+};
 
 export const executeLogin = async (userData: { username: string, password: string }) => {
     try {
@@ -31,7 +31,7 @@ export const executeLogin = async (userData: { username: string, password: strin
         toast.error(e.response.data.message);
         return false;
     }
-} 
+}; 
 
 export const checkToken = async () => {
     const token = localStorage.getItem('@Token');
@@ -40,8 +40,27 @@ export const checkToken = async () => {
             authorization: `Bearer ${token}`, 
         }
     });
-}
+};
+
+export const updateProfile = async (
+    id: string,
+    updateData: { username?: string, password?: string, profilePic?: string }
+) => {
+    const token = localStorage.getItem('@Token');
+    return api.patch(`/users/${id}`, updateData, {
+        headers: { authorization: `Bearer ${token}` }
+    });
+};
 
 export const getUsers = () => {
     return api.get('/users');
-}
+};
+
+export const deleteUser = async (id: string) => {
+    const token = localStorage.getItem('@Token');
+    return api.delete(`/users/${id}`, {
+        headers: {
+            authorization: `Bearer ${token}`, 
+        }
+    });
+};

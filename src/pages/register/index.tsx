@@ -14,8 +14,7 @@ const Register = ()=> {
     const navigate = useNavigate();
     
     if (localStorage.getItem('@Token')) {
-        // Fazer chamada de API para verificar se token é válido
-        return <Navigate to={'/'} />
+        return <Navigate to={'/'} />;
     }
 
     const submitRegisterForm = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -28,7 +27,7 @@ const Register = ()=> {
         if (user) {
             const loginResponse = await executeLogin({ username, password });
             if (loginResponse) {
-                navigate('/')
+                navigate('/');
             }
         }
     };
@@ -70,7 +69,7 @@ const Register = ()=> {
                 </Card>
             </form>
         </ScrollArea>
-    )
+    );
 };
 
 export default Register;

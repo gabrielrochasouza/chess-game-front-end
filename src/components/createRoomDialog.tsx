@@ -1,7 +1,7 @@
-import { CopyIcon } from '@radix-ui/react-icons'
-import { v1 } from 'uuid'
+import { CopyIcon } from '@radix-ui/react-icons';
+import { v1 } from 'uuid';
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogClose,
@@ -11,9 +11,9 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const CreateRoomDialog = ()=> {
     const uuid = v1();
@@ -63,7 +63,7 @@ const CreateRoomDialog = ()=> {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
-    )
-}
+    );
+};
 
 export default CreateRoomDialog;
