@@ -1,0 +1,200 @@
+.centralize {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chess-board-component {
+    flex-direction: column;
+    text-align: center;
+    margin: 50px 0;
+}
+
+.board {
+    height: 640px !important;
+    width: 640px !important;
+    display: flex;
+    flex-wrap: wrap;
+    border: 10px rgb(0, 0, 0) solid;
+    box-sizing: content-box;
+}
+
+p, button {
+    margin: 0;
+    padding: 0;
+}
+
+.square {
+    width: 80px !important;
+    height: 80px !important;
+    box-sizing: border-box;
+    position: relative;
+}
+
+
+.square img {
+    z-index: 10;
+    width: 80px !important;
+    height: 80px !important;
+}
+
+.dead-pieces {
+    display: flex;
+    justify-content: space-between;
+    min-height: 25px  !important;
+    width: 640px  !important;
+}
+
+.dead-pieces div {
+    width: 50%;
+    justify-content: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.dead-pieces div img {
+    width: 35px !important;
+    height: 35px !important;
+}
+
+@media (max-width: 700px) {
+    .board {
+        height: 400px !important;
+        width: 400px !important;
+    }
+    .square {
+        width: 50px !important;
+        height: 50px !important;
+    }
+    .square img {
+        width: 50px !important;
+        height: 50px !important;
+    }
+    .dead-pieces {
+        width: 400px !important;
+    }
+}
+
+@media (max-width: 450px) {
+    .board {
+        height: 320px !important;
+        width: 320px !important;
+    }
+    .square {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    .square img {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    .dead-pieces {
+        width: 320px !important;
+    }
+}
+
+.square-over {
+    width: 100%;
+    height: 100%;
+    z-index: 9;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.square-check-mark {
+    animation: color-change infinite .4s ease-in-out;
+}
+
+.square-possible-move {
+    background-color: rgba(0, 255, 76, 0.40);
+    cursor: pointer;
+    z-index: 10;
+}
+
+.square-selected {
+    background-color: rgba(0, 255, 155, 0.45);
+}
+
+.square-previous-move {
+    background-color: rgba(255, 230, 0, 0.55);
+}
+
+@keyframes color-change {
+    from {
+        background-color: rgba(24, 0, 0, 0.652);
+    }
+    to {
+        background-color: rgba(255, 0, 0, 0.679);
+    }
+  }
+
+.possible-to-click {
+    cursor: pointer;
+}
+
+.turn-indicator {
+    gap: 12px;
+    margin: 12px 0 0 0;
+}
+
+.info-block {
+    height: 72px;
+}
+
+button {
+    border: 0;
+    padding: 10px;
+    background-color: #0e857b;
+    color: #fff;
+    cursor: pointer;
+    margin: 10px 0 0 0;
+}
+
+.select-piece {
+    width: 100%;
+    min-height: 100vh;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.90);
+    flex-direction: column;
+}
+
+.black-pieces, .white-pieces {
+    width: 400px  !important;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.select-piece img {
+    cursor: pointer;
+    width: 90px !important;
+    transition: 1s;
+}
+
+.select-piece img:hover {
+    transform: scale(1.2);
+    transition: 1s;
+}
+
+.playing-as {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 140px;
+    height: 50px;
+    text-align: start;
+    gap: 10px;
+    z-index: 21;
+}
