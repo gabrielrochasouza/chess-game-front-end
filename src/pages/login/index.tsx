@@ -6,23 +6,26 @@ import { ScrollArea } from '@radix-ui/react-scroll-area';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { executeLogin } from '@/api';
+import { ReloadIcon } from '@radix-ui/react-icons';
 
 const Login = ()=> {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
     if (localStorage.getItem('@Token')) {
-        // Fazer chamada de API para verificar se token é válido
-        return <Navigate to={'/'} />
+        return <Navigate to={'/'} />;
     }
 
     const submitLoginForm = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setLoading(true);
         const loginResponse = await executeLogin({ username, password });
+        setLoading(false);
         if (loginResponse) {
             localStorage.setItem('@UserInfo', JSON.stringify(loginResponse));
-            navigate('/')
+            navigate('/');
         }
     };
 
@@ -47,7 +50,10 @@ const Login = ()=> {
                         </div>
                     </CardContent>
                     <CardFooter className="flex gap-2">
-                        <Button type='submit' variant="default">Enter</Button>
+                        <Button type='submit' disabled={loading} variant="default">
+                            {loading && <ReloadIcon className="mr-2 animate-spin" />}
+                            Enter
+                        </Button>
                         <Link to='/register'>
                             <Button variant="secondary">
                             Create an account
@@ -57,7 +63,7 @@ const Login = ()=> {
                 </Card>
             </form>
         </ScrollArea>
-    )
+    );
 };
 
 export default Login;

@@ -72,14 +72,12 @@ const Profile = ()=> {
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
-                        <BreadcrumbLink>
-                            <Link to={'/dashboard'}>Dashboard</Link>
-                        </BreadcrumbLink>
+                        <Link to={'/dashboard'}>Dashboard</Link>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
                         <BreadcrumbLink className='text-white'>
-                            <Link to={'/dashboard/profile'}>Profile</Link>
+                            Profile
                         </BreadcrumbLink>
                     </BreadcrumbItem>
                 </BreadcrumbList>

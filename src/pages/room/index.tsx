@@ -12,8 +12,12 @@ import {
     BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Link } from 'react-router-dom';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Separator } from '@/components/ui/separator';
-
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { SendHorizonal } from 'lucide-react';
 
 const Room = ()=> {
     const [, setRoom] = useState();
@@ -41,30 +45,64 @@ const Room = ()=> {
     }, [roomId]);
 
     return (
-        <Layout>
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink>
-                            <Link to={'/dashboard'}>Dashboard</Link>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbLink>
+        <Layout noPadding>
+            <ResizablePanelGroup
+                direction="horizontal"
+                className="h-full h-lvh"
+            >
+                <ResizablePanel defaultSize={50} className='p-4 md:p-8'>
+                    <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <Link to={'/dashboard'}>Dashboard</Link>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
                             Room
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbLink className='text-white'>
-                            {roomId}
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
-            <Separator />
-            <ChessBoard chessPieceSide={chessPieceSide} />
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbLink className='text-white'>
+                                    {roomId}
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                    <ChessBoard chessPieceSide={'white'} />
+                </ResizablePanel>
+                <ResizableHandle />
+                <ResizablePanel defaultSize={40} className='max-w-md'>
+                    <ResizablePanelGroup direction="vertical">
+                        <ResizablePanel defaultSize={15} className='h-full flex flex-col'>
+                            <div className="flex p-6 pb-2 gap-4">
+                                <Avatar>
+                                    {/* <AvatarImage src={playerInfo?.profilePic} className='object-cover' /> */}
+                                    <AvatarFallback>G</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <h2 className="text-base font-bold tracking-tight leading-none">
+                                    Gabriel
+                                    </h2>
+                                    <span className='text-xs leading-none'>Offline</span>
+                                </div>
+                            </div>
+                            <Separator className="my-2" />
+                            <div className='flex flex-1 flex-col-reverse p-4 min-w-40'>
+                                <div>No Messages Yet</div>
+                            </div>
+                            <Separator />
+                            <div className='flex min-h-10 justify-center items-center py-4'>
+                                <form className="flex w-full items-center space-x-2 px-4">
+                                    <Input className='min-w-40' type="email" placeholder="Send Message" />
+                                    <Button>
+                                        <SendHorizonal className='w-4' />
+                                    </Button>
+                                </form>
+                            </div>
+                        </ResizablePanel>
+                    </ResizablePanelGroup>
+                </ResizablePanel>
+            </ResizablePanelGroup>
         </Layout>
     );
 };

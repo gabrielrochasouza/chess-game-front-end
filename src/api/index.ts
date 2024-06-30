@@ -1,10 +1,8 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
-// import { env } from 'process';
 
 const api = axios.create({
-    // baseURL: process.env['DEV_API_URL'],
-    baseURL: 'http://localhost:3333'
+    baseURL: import.meta.env.VITE_DEV_API_URL
 });
 
 export const registerUser = async (userData: { username: string, password: string }) => {
@@ -25,6 +23,7 @@ export const executeLogin = async (userData: { username: string, password: strin
         toast.success('Successful login!');
         localStorage.setItem('@Token', response.data.token);
         localStorage.setItem('@UserId', response.data.id);
+        localStorage.setItem('@ExpiresIn', response.data.expiresIn);
 
         return response.data;
     } catch (e) {

@@ -3,7 +3,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { RouterProvider } from 'react-router-dom';
 import router from './routes/index.tsx';
 import '../app/globals.css';
-import { ThemeProvider } from '@/components/theme-provider'
+import { ThemeProvider } from '@/components/theme-provider';
 import Provider from './provider/index.tsx';
 
 function App() {
@@ -26,7 +26,7 @@ function App() {
                 />
             </ThemeProvider>
         </Provider>
-    )
+    );
 }
 
-export default App
+export default App;

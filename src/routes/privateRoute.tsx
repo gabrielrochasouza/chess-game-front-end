@@ -32,11 +32,24 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
                 toast.error('Invalid Token Logout');
                 localStorage.removeItem('@Token');
                 localStorage.removeItem('@UserId');
+                localStorage.removeItem('@ExpiresIn');
             });
     }, []);
 
     if (!localStorage.getItem('@Token')) {
         return <Navigate to="login" />;
+    }
+
+    if (localStorage.getItem('@ExpiresIn')) {
+        const now = Date.now();
+        const expiresIn = new Date(localStorage.getItem('@ExpiresIn')).valueOf();
+        if (now > expiresIn) {
+            localStorage.removeItem('@Token');
+            localStorage.removeItem('@UserId');
+            localStorage.removeItem('@ExpiresIn');
+            toast.error('Login Time Expired');
+            return <Navigate to="login" />;
+        }
     }
 
     if (localStorage.getItem('@Token') && isAuthenticated) {

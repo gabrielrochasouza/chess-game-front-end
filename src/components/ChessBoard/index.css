@@ -11,8 +11,8 @@
 }
 
 .board {
-    height: 640px !important;
-    width: 640px !important;
+    height: 400px !important;
+    width: 400px !important;
     display: flex;
     flex-wrap: wrap;
     border: 10px rgb(0, 0, 0) solid;
@@ -25,8 +25,8 @@ p, button {
 }
 
 .square {
-    width: 80px !important;
-    height: 80px !important;
+    width: 50px !important;
+    height: 50px !important;
     box-sizing: border-box;
     position: relative;
 }
@@ -34,8 +34,8 @@ p, button {
 
 .square img {
     z-index: 10;
-    width: 80px !important;
-    height: 80px !important;
+    width: 50px !important;
+    height: 50px !important;
 }
 
 .dead-pieces {

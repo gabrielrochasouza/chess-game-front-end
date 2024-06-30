@@ -4,8 +4,10 @@ import { ScrollArea } from '@radix-ui/react-scroll-area';
 
 const Layout = ({
     children,
+    noPadding=false,
 }: {
     children: React.ReactNode;
+    noPadding?: boolean;
   })=> {
     return (
         <ScrollArea className='h-full'>
@@ -14,7 +16,7 @@ const Layout = ({
                 <Sidebar />
                 <main className="w-full pt-14 overflow-auto">
                     <ScrollArea className="h-full">
-                        <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+                        <div className={`flex-1 h-full space-y-4 p-${noPadding ? '0' : '4'} md:p-${noPadding ? '0' : '8'} pt-6`}>
                             {children}
                         </div>
                     </ScrollArea>

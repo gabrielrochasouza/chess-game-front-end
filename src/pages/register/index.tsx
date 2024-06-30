@@ -6,11 +6,13 @@ import { ScrollArea } from '@radix-ui/react-scroll-area';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import  React, { useState } from 'react';
 import { executeLogin, registerUser } from '@/api';
+import { ReloadIcon } from '@radix-ui/react-icons';
 
 const Register = ()=> {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     
     if (localStorage.getItem('@Token')) {
@@ -19,6 +21,7 @@ const Register = ()=> {
 
     const submitRegisterForm = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setLoading(true);
         const user = await registerUser({
             username,
             password,
@@ -30,9 +33,10 @@ const Register = ()=> {
                 navigate('/');
             }
         }
+        setLoading(false);
     };
 
-    const buttonDisabled = !(username && password && confirmPassword && password === confirmPassword);
+    const buttonDisabled = !(username && password && confirmPassword && password === confirmPassword && !loading);
 
     return (
         <ScrollArea className='h-full h-lvh flex justify-center items-center'>
@@ -59,7 +63,10 @@ const Register = ()=> {
                         </div>
                     </CardContent>
                     <CardFooter className="flex gap-2">
-                        <Button variant="default" disabled={buttonDisabled}>Create</Button>
+                        <Button variant="default" disabled={buttonDisabled}>
+                            {loading && <ReloadIcon className="mr-2 animate-spin" />}
+                            Create
+                        </Button>
                         <Link to='/login'>
                             <Button type='submit' variant="secondary">
                             Already have an account
