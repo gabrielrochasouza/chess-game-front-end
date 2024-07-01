@@ -4,6 +4,7 @@ import { Icons } from '@/components/icons';
 import { Link } from 'react-router-dom';
 import { MenubarSeparator } from '@/components/ui/menubar';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useUsers } from '@/provider/users';
 
 
 interface NavItem {
@@ -38,6 +39,8 @@ const navItems: NavItem[] = [
 ];
 
 export default function Sidebar() {
+    const { chessGames, playerInfo } = useUsers();
+
     return (
         <nav
             className={cn('relative hidden h-screen border-r pt-16 lg:block w-72')}
@@ -54,19 +57,24 @@ export default function Sidebar() {
                     <ScrollArea className='h-full'>
                         <div className="space-y-1 mt-4">
                             <h2 className="mb-2 px-4 text-xl font-semibold tracking-tight">
-                        Rooms
+                            Chess Matches
                             </h2>
-                            <Link
-                                to={'/dashboard/room/fgdfgsr'}
-                            >
-                                <span
-                                    className={cn(
-                                        'group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground'
-                                    )}
-                                >
-                                    <span>Teste</span>
-                                </span>
-                            </Link>
+                            {
+                                chessGames.map(game => (
+                                    <Link
+                                        to={`/dashboard/${playerInfo.username === game.username1 ? game.username2 : game.username1}/${game.id}`}
+                                        key={game.id}
+                                    >
+                                        <span
+                                            className={cn(
+                                                'group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground'
+                                            )}
+                                        >
+                                            <span>{playerInfo.username === game.username1 ? game.username2 : game.username1}</span>
+                                        </span>
+                                    </Link>
+                                ))
+                            }
                         </div>
                     </ScrollArea>
                 </div>

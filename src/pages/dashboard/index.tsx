@@ -1,8 +1,7 @@
-import { getUsers } from '@/api';
+import { checkToken, createChessGame, getUsers } from '@/api';
 import Layout from '@/components/layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useUsers } from '@/provider/users';
-import { useEffect } from 'react';
 import {
     Table,
     TableBody,
@@ -11,15 +10,37 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const Dashboard = ()=> {
-    const { users, setUsers, onlineUsers, playerInfo } = useUsers();
+    const { users, onlineUsers, playerInfo, setUsers, setPlayerInfo, setChessGames } = useUsers();
 
-    useEffect(()=> {
-        getUsers().then(({ data }) => {
+    const onlinePlayers = users.filter(u => onlineUsers.includes(u.id));
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        getUsers().then(({data}) => {
             setUsers(data);
         });
     }, []);
+
+    const createChessMatchRequest = async (userId: string) => {
+        createChessGame(userId).then(({data}) => {
+            navigate(`/dashboard/${playerInfo.username === data.username1 ? data.username2 : data.username1}/${data.id}`);
+            checkToken()
+                .then(({ data }) => {
+                    localStorage.setItem('@UserInfo', JSON.stringify(data.user));
+                    setPlayerInfo(data.user);
+                    setChessGames(data.chessGames);
+                });
+        }).catch((e) => {
+            throw e;
+        });
+    };
 
     return (
         <Layout>
@@ -50,7 +71,7 @@ const Dashboard = ()=> {
                         </svg>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{onlineUsers || 0}</div>
+                        <div className="text-2xl font-bold">{onlineUsers.length || 0}</div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -120,7 +141,7 @@ const Dashboard = ()=> {
                     </CardContent>
                 </Card>
             </div>
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-7">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-7 pb-4">
                 <Card className="col-span-4">
                     <CardHeader>
                         <CardTitle>All Players</CardTitle>
@@ -161,12 +182,29 @@ const Dashboard = ()=> {
                 <Card className="col-span-4 md:col-span-3">
                     <CardHeader>
                         <CardTitle>Online Players</CardTitle>
-                        <CardDescription>
-                                    Players online available to play
-                        </CardDescription>
+                        <CardDescription>Players online available to play</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                                No players yet
+                    <CardContent className='p-0'>
+                        {onlinePlayers ? (
+                            <Table>
+                                <TableBody>
+                                    {
+                                        onlinePlayers.map((user, i) => (
+                                            <TableRow key={user.id + i}>
+                                                <TableCell className="w-2">🟢</TableCell>
+                                                <TableCell className="font-medium">{user.username}</TableCell>
+                                                <TableCell className="w-2 py-0">
+                                                    { playerInfo.id !== user.id && (
+                                                        <Button size='default' className='text-xs h-8 m-0' onClick={() => createChessMatchRequest(user.id)}>Match Request</Button>
+                                                    )}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    } 
+                                </TableBody>
+                            </Table>
+                        ) : ('No players yet')}
+                        <Separator />
                     </CardContent>
                 </Card>
             </div>

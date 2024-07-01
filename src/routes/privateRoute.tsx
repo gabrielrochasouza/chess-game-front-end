@@ -4,32 +4,33 @@ import { socket } from '@/socket-client/socket';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Socket } from 'socket.io-client';
 
 interface PrivateRouteProps {
   children: ReactNode;
 }
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-    const { setOnlineUsers, setPlayerInfo } = useUsers();
+    const { setOnlineUsers, setPlayerInfo, setChessGames } = useUsers();
     const [isAuthenticated, setIsAuthenticated] = useState(true);
     
     useEffect(()=> {
-        socket.on('handleConnection', (payload: {sender: string, numberOfUsers: number, users: Map<string, Socket>}) => {
-            setOnlineUsers(payload.numberOfUsers);
+        socket.on('handleConnect', (payload: {sender: string, numberOfUsers: number, users: string[]}) => {
+            setOnlineUsers(payload.users);
         });
-        socket.on('handleDisconnect', (payload: {sender: string, numberOfUsers: number, users: Map<string, Socket>}) => {
-            setOnlineUsers(payload.numberOfUsers);
+        socket.on('handleDisconnect', (payload: {sender: string, numberOfUsers: number, users: string[]}) => {
+            setOnlineUsers(payload.users);
         });
         checkToken()
             .then(({ data }) => {
                 localStorage.setItem('@UserInfo', JSON.stringify(data.user));
                 setPlayerInfo(data.user);
+                setChessGames(data.chessGames);
                 setIsAuthenticated(true);
+                socket.emit('UserConnected', data.user);
             })
             .catch(() => {
                 setIsAuthenticated(false);
-                toast.error('Invalid Token Logout');
+                toast.error('Invalid Token');
                 localStorage.removeItem('@Token');
                 localStorage.removeItem('@UserId');
                 localStorage.removeItem('@ExpiresIn');

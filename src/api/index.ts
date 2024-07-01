@@ -63,3 +63,32 @@ export const deleteUser = async (id: string) => {
         }
     });
 };
+
+export const createChessGame = async (userId: string) => {
+    const token = localStorage.getItem('@Token');
+    return api.post('chess-games', { userId }, 
+        { headers: { authorization: `Bearer ${token}` } }
+    );
+};
+
+export const getUserByUsername = async (username: string) => {
+    return api.get(`users/${username}/username`);
+};
+
+export const saveChat = async (roomId: string, chat: string) => {
+    const token = localStorage.getItem('@Token');
+    console.log('chat', chat);
+    return api.patch(`chess-games/save-chat/${roomId}`, {
+        chat: chat,
+    }, {
+        headers: { authorization: `Bearer ${token}` }
+    });
+};
+
+export const getRoomInfo = async (roomId: string) => {
+    const token = localStorage.getItem('@Token');
+    return api.get(`chess-games/${roomId}`, {
+        headers: { authorization: `Bearer ${token}` }
+    });
+
+};

@@ -50,6 +50,28 @@
     --ring: 240 4.9% 83.9%;
   }
 }
+
+.chess-chat-message-from {
+  border-radius: 12px;
+  padding: 8px 12px 16px 8px;
+  background-color: #333;
+  color: #fff;
+  text-align: end;
+  min-width: 80px;
+  display: inline-block;
+  position: relative;
+}
+
+.chess-chat-message-sent {
+  border-radius: 12px;
+  padding: 8px 12px 16px 8px;
+  background-color:#fff;
+  color: #000;
+  text-align: start;
+  min-width: 80px;
+  display: inline-block;
+  position: relative;
+}
  
 @layer base {
   * {
