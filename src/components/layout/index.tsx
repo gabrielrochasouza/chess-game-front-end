@@ -12,10 +12,10 @@ const Layout = ({
     return (
         <ScrollArea className='h-full'>
             <Header />
-            <div className="flex h-screen overflow-hidden">
+            <div className='flex h-screen overflow-hidden'>
                 <Sidebar />
-                <main className="w-full pt-14 overflow-auto">
-                    <ScrollArea className="h-full">
+                <main className='w-full pt-14 overflow-auto'>
+                    <ScrollArea className='h-full'>
                         <div className={`flex-1 h-full space-y-4 p-${noPadding ? '0' : '4'} md:p-${noPadding ? '0' : '8'} pt-${noPadding ? '0' : '6'}`}>
                             {children}
                         </div>

@@ -1,9 +1,11 @@
 import { checkToken } from '@/api';
 import { useUsers } from '@/provider/users';
 import { socket } from '@/socket-client/socket';
+import { logout } from '@/utils';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import LoadingBar from 'react-top-loading-bar';
 
 interface PrivateRouteProps {
   children: ReactNode;
@@ -11,8 +13,11 @@ interface PrivateRouteProps {
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
     const { setOnlineUsers, setPlayerInfo, setChessGames } = useUsers();
-    const [isAuthenticated, setIsAuthenticated] = useState(true);
-    
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [progress, setProgress] = useState(0);
+
+    const expiresIn = localStorage.getItem('@ExpiresIn') ? new Date(localStorage.getItem('@ExpiresIn')).valueOf() : null;
+
     useEffect(()=> {
         socket.on('handleConnect', (payload: {sender: string, numberOfUsers: number, users: string[]}) => {
             setOnlineUsers(payload.users);
@@ -20,41 +25,45 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
         socket.on('handleDisconnect', (payload: {sender: string, numberOfUsers: number, users: string[]}) => {
             setOnlineUsers(payload.users);
         });
-        checkToken()
-            .then(({ data }) => {
-                localStorage.setItem('@UserInfo', JSON.stringify(data.user));
-                setPlayerInfo(data.user);
-                setChessGames(data.chessGames);
-                setIsAuthenticated(true);
-                socket.emit('UserConnected', data.user);
-            })
-            .catch(() => {
-                setIsAuthenticated(false);
-                toast.error('Invalid Token');
-                localStorage.removeItem('@Token');
-                localStorage.removeItem('@UserId');
-                localStorage.removeItem('@ExpiresIn');
-            });
+
+        if (!expiresIn || Date.now() < expiresIn) {
+            setProgress(30);
+            checkToken()
+                .then(({ data }) => {
+                    localStorage.setItem('@UserInfo', JSON.stringify(data.user));
+                    setPlayerInfo(data.user);
+                    setChessGames(data.chessGames);
+                    setIsAuthenticated(true);
+                    socket.emit('UserConnected', data.user);
+                })
+                .catch(() => {
+                    setIsAuthenticated(false);
+                    logout();
+                })
+                .finally(() => {
+                    setProgress(100);
+                });
+        }
     }, []);
 
-    if (!localStorage.getItem('@Token')) {
-        return <Navigate to="login" />;
+    if (expiresIn && Date.now() > expiresIn) {
+        logout();
+        toast.error('Login Time Expired');
+        return <Navigate to='login' />;
     }
 
-    if (localStorage.getItem('@ExpiresIn')) {
-        const now = Date.now();
-        const expiresIn = new Date(localStorage.getItem('@ExpiresIn')).valueOf();
-        if (now > expiresIn) {
-            localStorage.removeItem('@Token');
-            localStorage.removeItem('@UserId');
-            localStorage.removeItem('@ExpiresIn');
-            toast.error('Login Time Expired');
-            return <Navigate to="login" />;
-        }
+    if (!localStorage.getItem('@Token') || !localStorage.getItem('@UserId')) {
+        logout();
+        return <Navigate to='login' />;
     }
 
     if (localStorage.getItem('@Token') && isAuthenticated) {
-        return children; 
+        return (
+            <>
+                <LoadingBar color='#f11946' progress={progress} onLoaderFinished={() => setProgress(0)} />
+                {children}
+            </>
+        ); 
     }
 };
 

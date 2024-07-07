@@ -10,7 +10,7 @@ export default class ChessPiecePawn implements ClassPieceType {
     }
     name: pieceNamesType = 'pawn';
     svgFile: string;
-    color: 'white' | 'black'
+    color: 'white' | 'black';
     allPossibleMoves: possibleMovesType = new Array(8).fill(false).map(() => new Array(8).fill(false));
     kingPiece: boolean = false;
     pieceHasAlreadyMove: boolean = false;
@@ -46,7 +46,7 @@ export default class ChessPiecePawn implements ClassPieceType {
     }
     setPossibleMoves(chessBoard: chessBoardArrayType, l: number, c: number) {
         this.allPossibleMoves = this.pawnPossibleMoves(chessBoard, l, c);
-        return chessBoard.map((line: chessBoardType[], lIndex: number) => line.map((column: chessBoardType, cIndex: number) => ({...column, isPossibleToMove: this.allPossibleMoves[lIndex][cIndex]})))
+        return chessBoard.map((line: chessBoardType[], lIndex: number) => line.map((column: chessBoardType, cIndex: number) => ({...column, isPossibleToMove: this.allPossibleMoves[lIndex][cIndex]})));
     }
 
     checkIfItsAttackingKing (color: 'white' | 'black', chessBoard: chessBoardArrayType, l: number, c: number):boolean {

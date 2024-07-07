@@ -11,23 +11,21 @@ import {
     MenubarTrigger,
 } from '@/components/ui/menubar';
 import { useUsers } from '@/provider/users';
-import { toast } from 'react-toastify';
+import { logout } from '@/utils';
 
 export default function Header() {
     const { playerInfo } = useUsers();
     const navigate = useNavigate();
 
-    const logout = () => {
-        localStorage.removeItem('@Token');
-        localStorage.removeItem('@UserId');
-        toast.success('Logout');
+    const handleLogout = () => {
+        logout();
         navigate('/login');
     };
 
     return (
-        <div className="fixed top-0 left-0 right-0 supports-backdrop-blur:bg-background/60 border-b bg-background/95 backdrop-blur z-20">
-            <nav className="h-14 flex items-center justify-between px-4">
-                <div className="block">
+        <div className='fixed top-0 left-0 right-0 supports-backdrop-blur:bg-background/60 border-b bg-background/95 backdrop-blur z-20'>
+            <nav className='h-14 flex items-center justify-between px-4'>
+                <div className='block'>
                     <Link to={'/'}>
                         <img src={WhiteQueen}/> 
                     </Link>
@@ -52,7 +50,7 @@ export default function Header() {
                                     </Link>
                                 </MenubarItem>
                                 <MenubarSeparator />
-                                <MenubarItem onClick={logout}>Logout</MenubarItem>
+                                <MenubarItem onClick={handleLogout}>Logout</MenubarItem>
                             </MenubarContent>
                         </MenubarMenu>
                     </Menubar>

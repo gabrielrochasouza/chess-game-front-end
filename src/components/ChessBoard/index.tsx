@@ -1,5 +1,5 @@
 import { useState, useCallback, MouseEvent, useEffect } from 'react';
-import chessBoardInstance from '../../models/ChessBoard';
+import { ChessBoard as ChessBoardClass } from '../../models/ChessBoard';
 import './index.css';
 import { chessBoardType, colorType, pieceNamesType } from '../../models/types';
 import BlackBishop from '../../assets/svg/black_bishop.svg';
@@ -21,6 +21,7 @@ interface IControlledPosition {
 
 interface IChessBoardComponent {
     chessPieceSide: colorType,
+    chessBoardInstance: ChessBoardClass
 }
 
 interface Payload {
@@ -30,7 +31,7 @@ interface Payload {
     targetColumn: number,
 }
 
-function ChessBoard({ chessPieceSide }: IChessBoardComponent) { // TODO: should receive prop of which chesspiece color player is playing
+function ChessBoard({ chessPieceSide, chessBoardInstance }: IChessBoardComponent) { // TODO: should receive prop of which chesspiece color player is playing
     const {
         chessBoard,
         turnOfPlay,
@@ -160,21 +161,21 @@ function ChessBoard({ chessPieceSide }: IChessBoardComponent) { // TODO: should 
                                     (square.currentPiece.color === 'white' && whitePlayerOnCheck)
                                 )
                             ) && (
-                                <div className="square-over square-check-mark"></div>
+                                <div className='square-over square-check-mark'></div>
                             )}
-                            {square.isPossibleToMove && <div className="square-over square-possible-move"></div>}
-                            {square.isSelected && <div className="square-over square-selected"></div>}
-                            {square.isPreviousSelectedSquareMove && <div className="square-over square-previous-move"></div>}
-                            {square.isPreviousTargetSquareMove && <div className="square-over square-previous-move"></div>}
+                            {square.isPossibleToMove && <div className='square-over square-possible-move'></div>}
+                            {square.isSelected && <div className='square-over square-selected'></div>}
+                            {square.isPreviousSelectedSquareMove && <div className='square-over square-previous-move'></div>}
+                            {square.isPreviousTargetSquareMove && <div className='square-over square-previous-move'></div>}
                         </div>
                     )
                     )
                 ))}
             </div>
-            <div className="info-block">
-                <div className="turn-indicator centralize">
-                    <svg height="28" width="28">
-                        <circle cx="14" cy="14" r="12" stroke="#0e857b" strokeWidth="2" fill={turnOfPlay} />
+            <div className='info-block'>
+                <div className='turn-indicator centralize'>
+                    <svg height='28' width='28'>
+                        <circle cx='14' cy='14' r='12' stroke='#0e857b' strokeWidth='2' fill={turnOfPlay} />
                     </svg>
                     <h3>
                         Vez das peças {turnOfPlay === 'white' ? 'brancas' : 'pretas'}
@@ -187,28 +188,28 @@ function ChessBoard({ chessPieceSide }: IChessBoardComponent) { // TODO: should 
                 {!chessPieceSide && <button onClick={restartGameHandler}>Restart Game</button>}
             </div>
             {chessBoardInstance.pawnReachedEndOfChessBoard && (
-                <div className="select-piece">
+                <div className='select-piece'>
                     <h2>Select One Piece</h2>
                     {chessBoardInstance.turnOfPlay === 'white' ? (
-                        <div className="black-pieces centralize">
-                            <img src={BlackBishop} onClick={() => pieceSelectionHandler('bishop')} alt="black bishop piece" />
-                            <img src={BlackKnight} onClick={() => pieceSelectionHandler('knight')} alt="black knight piece" />
-                            <img src={BlackQueen} onClick={() => pieceSelectionHandler('queen')} alt="black queen piece" />
-                            <img src={BlackRook} onClick={() => pieceSelectionHandler('rook')} alt="black rook piece" />
+                        <div className='black-pieces centralize'>
+                            <img src={BlackBishop} onClick={() => pieceSelectionHandler('bishop')} alt='black bishop piece' />
+                            <img src={BlackKnight} onClick={() => pieceSelectionHandler('knight')} alt='black knight piece' />
+                            <img src={BlackQueen} onClick={() => pieceSelectionHandler('queen')} alt='black queen piece' />
+                            <img src={BlackRook} onClick={() => pieceSelectionHandler('rook')} alt='black rook piece' />
                         </div>
                     ) : (
-                        <div className="white-pieces centralize">
-                            <img src={WhiteBishop} onClick={() => pieceSelectionHandler('bishop')} alt="white bishop piece" />
-                            <img src={WhiteKnight} onClick={() => pieceSelectionHandler('knight')} alt="white knight piece" />
-                            <img src={WhiteQueen} onClick={() => pieceSelectionHandler('queen')} alt="white queen piece" />
-                            <img src={WhiteRook} onClick={() => pieceSelectionHandler('rook')} alt="white rook piece" />
+                        <div className='white-pieces centralize'>
+                            <img src={WhiteBishop} onClick={() => pieceSelectionHandler('bishop')} alt='white bishop piece' />
+                            <img src={WhiteKnight} onClick={() => pieceSelectionHandler('knight')} alt='white knight piece' />
+                            <img src={WhiteQueen} onClick={() => pieceSelectionHandler('queen')} alt='white queen piece' />
+                            <img src={WhiteRook} onClick={() => pieceSelectionHandler('rook')} alt='white rook piece' />
                         </div>
                     )}
 
                 </div>
             )}
-            <div className="playing-as centralize">
-                <img src={chessPieceSide === 'black' ? BlackKnight : WhiteKnight} alt="knight piece" />
+            <div className='playing-as centralize'>
+                <img src={chessPieceSide === 'black' ? BlackKnight : WhiteKnight} alt='knight piece' />
                 <span>Playing as {chessPieceSide}</span>
             </div>
         </div>

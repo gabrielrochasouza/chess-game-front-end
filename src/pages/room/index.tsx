@@ -21,6 +21,7 @@ import { SendHorizonal } from 'lucide-react';
 import { useUsers } from '@/provider/users';
 import { getRoomInfo, getUserByUsername, saveChat } from '@/api';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ChessBoard as ChessBoardClass } from '@/models/ChessBoard';
 
 interface IChatMessage {
     roomId: string,
@@ -41,11 +42,8 @@ interface IUser {
 }
 
 const Room = ()=> {
-    // const [, setRoom] = useState();
-    // const [sender, setSender] = useState<string>();
-    // const [chessPieceSide, setChessPieceSide] = useState<colorType>();
     const { roomId, username } = useParams();
-    const { onlineUsers, playerInfo } = useUsers();
+    const { onlineUsers, playerInfo, chessBoardRoomsInstances, setChessBoardRoomsInstances } = useUsers();
     const [message, setMessage] = useState<string>('');
 
     const [chatMessages, setChatMessages] = useState<IChatMessage[]>([]);
@@ -66,6 +64,10 @@ const Room = ()=> {
             }
         });
     };
+
+    if (!chessBoardRoomsInstances[roomId]) {
+        setChessBoardRoomsInstances({ ...chessBoardRoomsInstances, [roomId]: new ChessBoardClass() });
+    }
 
     useEffect(()=> {
         socket.on('chatMessage', (payload) => {
@@ -92,8 +94,8 @@ const Room = ()=> {
     return (
         <Layout noPadding>
             <ResizablePanelGroup
-                direction="horizontal"
-                className="h-full h-lvh"
+                direction='horizontal'
+                className='h-full h-lvh'
             >
                 <ResizablePanel defaultSize={50} className='p-4 md:p-8'>
                     <Breadcrumb>
@@ -113,13 +115,13 @@ const Room = ()=> {
                             </BreadcrumbItem>
                         </BreadcrumbList>
                     </Breadcrumb>
-                    <ChessBoard chessPieceSide={'white'} />
+                    {chessBoardRoomsInstances[roomId] && <ChessBoard chessPieceSide={'white'} chessBoardInstance={chessBoardRoomsInstances[roomId]} />}
                 </ResizablePanel>
                 <ResizableHandle />
                 <ResizablePanel defaultSize={40} className='max-w-md'>
-                    <ResizablePanelGroup direction="vertical">
+                    <ResizablePanelGroup direction='vertical'>
                         <ResizablePanel defaultSize={15} className='h-full flex flex-col'>
-                            <div className="flex p-6 pb-2 gap-4">
+                            <div className='flex p-6 pb-2 gap-4'>
                                 <Avatar>
                                     {playerAdversary?.profilePic && (
                                         <AvatarImage src={playerAdversary?.profilePic} className='object-cover' />
@@ -127,15 +129,15 @@ const Room = ()=> {
                                     <AvatarFallback>{username ? username[0] : ''}</AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <h2 className="text-base font-bold tracking-tight leading-none">
+                                    <h2 className='text-base font-bold tracking-tight leading-none'>
                                         {username}
                                     </h2>
                                     <span className='text-xs leading-none'>{playerIsOnline ? '🟢 Online' : 'Offline'}</span>
                                 </div>
                             </div>
-                            <Separator className="my-2" />
+                            <Separator className='my-2' />
                             <ScrollArea className='flex flex-1 flex-col justify-end p-4 min-w-40 gap-2 overflow-auto text-xs'>
-                                <div>
+                                <div className='flex align-end'>
                                     {chatMessages.map(chat => (
                                         <div key={new Date(chat.createdAt).valueOf()} className={chat.username === playerInfo.username ? 'text-start my-2' : 'text-end my-2'}>
                                             <div className={chat.username === playerInfo.username ? 'chess-chat-message-sent' : 'chess-chat-message-from'}>
@@ -150,8 +152,8 @@ const Room = ()=> {
                             </ScrollArea>
                             <Separator />
                             <div className='flex min-h-10 justify-center items-center py-4'>
-                                <form onSubmit={sendChatMessage} className="flex w-full items-center space-x-2 px-4">
-                                    <Input className='min-w-40' value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Send Message" />
+                                <form onSubmit={sendChatMessage} className='flex w-full items-center space-x-2 px-4'>
+                                    <Input className='min-w-40' value={message} onChange={(e) => setMessage(e.target.value)} placeholder='Send Message' />
                                     <Button disabled={!message} type='submit'>
                                         <SendHorizonal className='w-4' />
                                     </Button>

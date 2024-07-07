@@ -32,30 +32,30 @@ const Login = ()=> {
     return (
         <ScrollArea className='h-full h-lvh flex justify-center items-center align-center'>
             <form onSubmit={submitLoginForm}>
-                <Card className="w-[350px]">
+                <Card className='w-[350px]'>
                     <CardHeader>
                         <CardTitle>Login</CardTitle>
                         <CardDescription>Make your login.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid w-full items-center gap-4">
-                            <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="name">Username</Label>
-                                <Input id="name" onChange={(event) => setUsername(event.target.value)} placeholder="Your username" required />
+                        <div className='grid w-full items-center gap-4'>
+                            <div className='flex flex-col space-y-1.5'>
+                                <Label htmlFor='name'>Username</Label>
+                                <Input id='name' onChange={(event) => setUsername(event.target.value)} placeholder='Your username' required />
                             </div>
-                            <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="password">Password</Label>
-                                <Input id="password" onChange={(event) => setPassword(event.target.value)} type='password' minLength={8} placeholder="Password" required />
+                            <div className='flex flex-col space-y-1.5'>
+                                <Label htmlFor='password'>Password</Label>
+                                <Input id='password' onChange={(event) => setPassword(event.target.value)} type='password' minLength={8} placeholder='Password' required />
                             </div>
                         </div>
                     </CardContent>
-                    <CardFooter className="flex gap-2">
-                        <Button type='submit' disabled={loading} variant="default">
-                            {loading && <ReloadIcon className="mr-2 animate-spin" />}
+                    <CardFooter className='flex gap-2'>
+                        <Button type='submit' disabled={loading} variant='default'>
+                            {loading && <ReloadIcon className='mr-2 animate-spin' />}
                             Enter
                         </Button>
                         <Link to='/register'>
-                            <Button variant="secondary">
+                            <Button variant='secondary'>
                             Create an account
                             </Button>
                         </Link>

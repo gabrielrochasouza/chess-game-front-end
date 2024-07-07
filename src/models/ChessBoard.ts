@@ -12,7 +12,7 @@ import ChessCheckMateSoundEffect from '../assets/sound/check_mate_sound.wav';
 import { chessBoardArrayType, pieceNamesType } from './types';
 import { toast } from 'react-toastify';
 
-class ChessBoard {
+export class ChessBoard {
     constructor() {
         this.startGame();
     }
@@ -39,9 +39,9 @@ class ChessBoard {
         new Array(8).fill(0).forEach((_, c:number) => {
             this.chessBoard[6][c].currentPiece = new ChessPiece(6, c, 'white', new ChessPiecePawn('white'));
             this.chessBoard[1][c].currentPiece = new ChessPiece(1, c, 'black', new ChessPiecePawn('black'));
-        })
+        });
         this.whiteKingPiece = new ChessPiece(7, 4, 'white', new ChessPieceKing('white'));
-        this.blackKingPiece = new ChessPiece(0, 4, 'black', new ChessPieceKing('black'))
+        this.blackKingPiece = new ChessPiece(0, 4, 'black', new ChessPieceKing('black'));
 
         this.chessBoard[7][0].currentPiece = new ChessPiece(7, 0, 'white', new ChessPieceRook('white'));
         this.chessBoard[7][1].currentPiece = new ChessPiece(7, 1, 'white', new ChessPieceKnight('white'));
@@ -87,7 +87,7 @@ class ChessBoard {
                         previousLine,
                         previousColumn,
                     ),
-                }
+                };
             }
             return square;
         }));
@@ -140,7 +140,7 @@ class ChessBoard {
     }
 
     private setMarkToPreviousSquareMove (targetLine: number, targetColumn: number) {
-        this.chessBoard = this.chessBoard.map(line => line.map(square => ({ ...square, isPreviousSelectedSquareMove: false, isPreviousTargetSquareMove: false })))
+        this.chessBoard = this.chessBoard.map(line => line.map(square => ({ ...square, isPreviousSelectedSquareMove: false, isPreviousTargetSquareMove: false })));
         this.chessBoard[this.previousLine][this.previousColumn].isPreviousSelectedSquareMove = true;
         this.chessBoard[targetLine][targetColumn].isPreviousTargetSquareMove = true;
     }
@@ -184,7 +184,7 @@ class ChessBoard {
     }
 
     public selectPiece(l: number, c: number) {
-        if (this.chessBoard[l][c]?.currentPiece && this.turnOfPlay === this.chessBoard[l][c].currentPiece?.color) {
+        if (l && c && this.chessBoard[l][c]?.currentPiece && this.turnOfPlay === this.chessBoard[l][c].currentPiece?.color) {
             this.updateBoard();
             this.selectedPiece = this.chessBoard[l][c].currentPiece;
             this.previousLine = l;
@@ -225,7 +225,7 @@ class ChessBoard {
 
     public changeModeToSelectMode() {
         this.updateBoard();
-        this.mode = 'selectPiece'
+        this.mode = 'selectPiece';
     }
 
     public verifyIfPlayerIsOnCheck(color: 'white' | 'black'): boolean {
@@ -236,7 +236,7 @@ class ChessBoard {
                     itsOnCheck = true;
                 }
             }
-        }))
+        }));
 
         return itsOnCheck;
     }
@@ -313,7 +313,7 @@ class ChessBoard {
                         const result = this.verifyIfNextMoveWillBeCheck(colorOfplayerBeingAttacked, targetLine, targetColumn, previousLine, previousColumn);
                         possibleResults.push(result);
                     }
-                }))
+                }));
 
             }
         }) 

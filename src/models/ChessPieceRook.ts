@@ -25,7 +25,7 @@ export default class ChessPieceRook implements ClassPieceType {
             nextColumn: c + 1,
             previousLine: l - 1,
             previousColumn: c - 1,
-        }
+        };
     }
 
     public rookPossibleMoves(chessBoard: chessBoardArrayType, l: number, c: number): boolean[][] {
@@ -36,7 +36,7 @@ export default class ChessPieceRook implements ClassPieceType {
 
         while (nextLine <= 7) {
             if(!chessBoard[nextLine][c].currentPiece || chessBoard[nextLine][c].currentPiece?.color !== this.color) {
-                allPossibleMoves[nextLine][c] = true
+                allPossibleMoves[nextLine][c] = true;
             }
             if(chessBoard[nextLine][c].currentPiece) break;
             nextLine = nextLine + 1;
@@ -45,7 +45,7 @@ export default class ChessPieceRook implements ClassPieceType {
         ({nextLine, nextColumn, previousLine, previousColumn} = this.setLinesAndColumns(l, c));
         while (previousLine >= 0) {
             if(!chessBoard[previousLine][c].currentPiece || chessBoard[previousLine][c].currentPiece?.color !== this.color) {
-                allPossibleMoves[previousLine][c] = true
+                allPossibleMoves[previousLine][c] = true;
             }
             if(chessBoard[previousLine][c].currentPiece) break;
             previousLine = previousLine - 1;
@@ -63,7 +63,7 @@ export default class ChessPieceRook implements ClassPieceType {
         ({nextLine, nextColumn, previousLine, previousColumn} = this.setLinesAndColumns(l, c));
         while (previousColumn >= 0) {
             if(!chessBoard[l][previousColumn].currentPiece || chessBoard[l][previousColumn].currentPiece?.color !== this.color) {
-                allPossibleMoves[l][previousColumn] = true
+                allPossibleMoves[l][previousColumn] = true;
             }
             if(chessBoard[l][previousColumn].currentPiece) break;
             previousColumn = previousColumn - 1;
@@ -74,7 +74,7 @@ export default class ChessPieceRook implements ClassPieceType {
 
     setPossibleMoves(chessBoard: chessBoardArrayType, l: number, c: number) {
         this.allPossibleMoves = this.rookPossibleMoves(chessBoard, l, c);
-        return chessBoard.map((line: chessBoardType[], l: number) => line.map((column: chessBoardType, c: number) => ({...column, isPossibleToMove: this.allPossibleMoves[l][c]})))
+        return chessBoard.map((line: chessBoardType[], l: number) => line.map((column: chessBoardType, c: number) => ({...column, isPossibleToMove: this.allPossibleMoves[l][c]})));
     }
 
     checkIfItsAttackingKing (color: 'white' | 'black', chessBoard: chessBoardArrayType, l: number, c: number):boolean {

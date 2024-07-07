@@ -52,7 +52,7 @@ export default class ChessPieceKing implements ClassPieceType {
     }
     setPossibleMoves(chessBoard: chessBoardArrayType, l: number, c: number) {
         this.allPossibleMoves = this.kingPossibleMoves(chessBoard, l, c);
-        return chessBoard.map((line: chessBoardType[], l: number) => line.map((column: chessBoardType, c: number) => ({...column, isPossibleToMove: this.allPossibleMoves[l][c]})))
+        return chessBoard.map((line: chessBoardType[], l: number) => line.map((column: chessBoardType, c: number) => ({...column, isPossibleToMove: this.allPossibleMoves[l][c]})));
     }
 
     checkIfItsAttackingKing (color: 'white' | 'black', chessBoard: chessBoardArrayType, l: number, c: number):boolean {

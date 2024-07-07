@@ -10,10 +10,10 @@ function App() {
 
     return (
         <Provider>
-            <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+            <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
                 <RouterProvider router={router} />
                 <ToastContainer
-                    position="bottom-center"
+                    position='bottom-center'
                     autoClose={2000}
                     hideProgressBar={false}
                     newestOnTop={false}
@@ -22,7 +22,7 @@ function App() {
                     pauseOnFocusLoss
                     draggable
                     pauseOnHover
-                    theme="dark"
+                    theme='dark'
                 />
             </ThemeProvider>
         </Provider>

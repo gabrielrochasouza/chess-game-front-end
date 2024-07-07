@@ -8,7 +8,7 @@ interface ContextProps{
     isAuthenticated: boolean
 }
 
-const AuthContext = createContext<ContextProps>({} as ContextProps)
+const AuthContext = createContext<ContextProps>({} as ContextProps);
 
 export const AuthProvider = ({children}:ProviderProps)=>{
     const [isAuthenticated] = useState(false);
@@ -17,7 +17,7 @@ export const AuthProvider = ({children}:ProviderProps)=>{
         <AuthContext.Provider value={{ isAuthenticated }}>
             {children}
         </AuthContext.Provider>
-    )
-} 
+    );
+}; 
 
-export const useAuth = ()=> useContext(AuthContext)
+export const useAuth = ()=> useContext(AuthContext);

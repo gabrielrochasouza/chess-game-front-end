@@ -82,40 +82,40 @@ const Profile = ()=> {
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
-            <div className="flex items-center justify-between">
+            <div className='flex items-center justify-between'>
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight">{playerInfo.username}'s Profile</h2>
-                    <p className="text-sm text-muted-foreground">Update profile</p>
+                    <h2 className='text-3xl font-bold tracking-tight'>{playerInfo.username}'s Profile</h2>
+                    <p className='text-sm text-muted-foreground'>Update profile</p>
                 </div>
             </div>
-            <Separator className="my-4" />
+            <Separator className='my-4' />
             <form onSubmit={submitUpdateProfile}>
-                <div className="grid items-center gap-4 max-w-2xl">
-                    <div className="flex-col space-y-1.5">
-                        <Label htmlFor="name">Username</Label>
-                        <Input id="name" value={username} onChange={(event) => setUsername(event.target.value)} placeholder="Your username" required />
+                <div className='grid items-center gap-4 max-w-2xl'>
+                    <div className='flex-col space-y-1.5'>
+                        <Label htmlFor='name'>Username</Label>
+                        <Input id='name' value={username} onChange={(event) => setUsername(event.target.value)} placeholder='Your username' required />
                     </div>
-                    <div className="flex-col space-y-1.5">
-                        <Label htmlFor="password">Profile Picture URL</Label>
-                        <Input id="profilePic" value={profilePic} onChange={(event) => setProfilePic(event.target.value)} required type='url' placeholder="Profile Picture URL" />
+                    <div className='flex-col space-y-1.5'>
+                        <Label htmlFor='password'>Profile Picture URL</Label>
+                        <Input id='profilePic' value={profilePic} onChange={(event) => setProfilePic(event.target.value)} required type='url' placeholder='Profile Picture URL' />
                     </div>
-                    <div className="flex-col space-y-1.5">
-                        <Label htmlFor="password">New Password</Label>
-                        <Input id="password" value={password} onChange={(event) => setPassword(event.target.value)} type='password' minLength={8} placeholder="Password" />
+                    <div className='flex-col space-y-1.5'>
+                        <Label htmlFor='password'>New Password</Label>
+                        <Input id='password' value={password} onChange={(event) => setPassword(event.target.value)} type='password' minLength={8} placeholder='Password' />
                     </div>
                     { password && (
-                        <div className="flex-col space-y-1.5">
-                            <Label htmlFor="password">Confirm Password</Label>
-                            <Input id="confirmPassword" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} minLength={8} type='password' placeholder="Password" />
+                        <div className='flex-col space-y-1.5'>
+                            <Label htmlFor='password'>Confirm Password</Label>
+                            <Input id='confirmPassword' value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} minLength={8} type='password' placeholder='Password' />
                         </div>
                     )}
-                    <div className="flex-col space-y-1.5">
-                        <Button type='submit' disabled={buttonDisabled} variant="default">
-                            {loadingUpdate && <ReloadIcon className="mr-2 animate-spin" />}
+                    <div className='flex-col space-y-1.5'>
+                        <Button type='submit' disabled={buttonDisabled} variant='default'>
+                            {loadingUpdate && <ReloadIcon className='mr-2 animate-spin' />}
                             Update Profile
                         </Button>
-                        <Button type='button' disabled={loadingDelete} onClick={submitDeleteProfile} className='ml-4' variant="destructive">
-                            {loadingDelete && <ReloadIcon className="mr-2 animate-spin" />}
+                        <Button type='button' disabled={loadingDelete} onClick={submitDeleteProfile} className='ml-4' variant='destructive'>
+                            {loadingDelete && <ReloadIcon className='mr-2 animate-spin' />}
                             Delete Profile
                         </Button>
                     </div>

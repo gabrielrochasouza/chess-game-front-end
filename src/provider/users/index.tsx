@@ -1,3 +1,4 @@
+import { ChessBoard } from '@/models/ChessBoard';
 import { ReactNode,createContext,useContext,useState } from 'react';
 
 interface ProviderProps {
@@ -39,6 +40,12 @@ interface ContextProps{
     setOnlineUsers: (onlineUsers: string[]) => void,
     chessGames: IChessGames[],
     setChessGames: (chessGames: IChessGames[]) => void,
+    chessBoardRoomsInstances: IChessBoardRoomsInstances,
+    setChessBoardRoomsInstances: (chessBoardRoomsInstances: IChessBoardRoomsInstances) => void,
+}
+
+interface IChessBoardRoomsInstances {
+    [key: string]: ChessBoard
 }
 
 const UsersContext = createContext<ContextProps>({} as ContextProps);
@@ -48,6 +55,7 @@ export const UsersProvider = ({children}:ProviderProps)=>{
     const [playerInfo, setPlayerInfo] = useState<IPlayerInfo>({} as IPlayerInfo);
     const [onlineUsers, setOnlineUsers] = useState<string[]>([] as string[]);
     const [chessGames, setChessGames] = useState<IChessGames[]>([] as IChessGames[]);
+    const [chessBoardRoomsInstances, setChessBoardRoomsInstances] = useState<IChessBoardRoomsInstances>({} as IChessBoardRoomsInstances);
 
     return(
         <UsersContext.Provider value={{
@@ -59,6 +67,8 @@ export const UsersProvider = ({children}:ProviderProps)=>{
             setOnlineUsers,
             chessGames,
             setChessGames,
+            chessBoardRoomsInstances,
+            setChessBoardRoomsInstances,
         }}>
             {children}
         </UsersContext.Provider>
