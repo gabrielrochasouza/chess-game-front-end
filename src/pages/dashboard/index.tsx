@@ -13,10 +13,19 @@ import {
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { socket } from '@/socket-client/socket';
+import { PersonIcon, ChevronRightIcon, ChevronLeftIcon } from '@radix-ui/react-icons';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Input } from '@/components/ui/input';
+import { Pagination, PaginationContent, PaginationItem } from '@/components/ui/pagination';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const Dashboard = ()=> {
     const { users, onlineUsers, playerInfo, setUsers, setPlayerInfo, setChessGames } = useUsers();
+    const [username, setUsername] = useState('');
+    const [currentPage, setCurrentPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
 
     const onlinePlayers = users.filter(u => onlineUsers.includes(u.id));
 
@@ -30,17 +39,23 @@ const Dashboard = ()=> {
 
     const createChessMatchRequest = async (userId: string) => {
         createChessGame(userId).then(({data}) => {
-            navigate(`/dashboard/${playerInfo.username === data.username1 ? data.username2 : data.username1}/${data.id}`);
+            navigate(`/dashboard/${playerInfo.username}/${playerInfo.username === data.username1 ? data.username2 : data.username1}/${data.id}`);
             checkToken()
                 .then(({ data }) => {
                     localStorage.setItem('@UserInfo', JSON.stringify(data.user));
                     setPlayerInfo(data.user);
                     setChessGames(data.chessGames);
+                    socket.emit('reloadInfo', { userId });
                 });
         }).catch((e) => {
             throw e;
         });
     };
+
+    const filterUsers = users.filter(user =>  user.username.toLowerCase().includes(username.toLocaleLowerCase()))
+        .slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage );
+
+    const totalOfPages = users.length ? Math.ceil(users.length / rowsPerPage) : 0;
 
     return (
         <Layout>
@@ -52,9 +67,7 @@ const Dashboard = ()=> {
             <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
                 <Card>
                     <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                        <CardTitle className='text-sm font-medium'>
-                                    Players Online
-                        </CardTitle>
+                        <CardTitle className='text-sm font-medium'>Players Online</CardTitle>
                         <svg
                             xmlns='http://www.w3.org/2000/svg'
                             viewBox='0 0 24 24'
@@ -76,9 +89,7 @@ const Dashboard = ()=> {
                 </Card>
                 <Card>
                     <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                        <CardTitle className='text-sm font-medium'>
-                                    Number of wins
-                        </CardTitle>
+                        <CardTitle className='text-sm font-medium'>Number of wins</CardTitle>
                         <svg
                             xmlns='http://www.w3.org/2000/svg'
                             viewBox='0 0 24 24'
@@ -143,40 +154,86 @@ const Dashboard = ()=> {
             </div>
             <div className='grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-7 pb-4'>
                 <Card className='col-span-4'>
-                    <CardHeader>
-                        <CardTitle>All Players</CardTitle>
+                    <CardHeader className='flex items-center'>
+                        <div className='w-full flex py-0 justify-between items-center'>
+                            <CardTitle>Ranking</CardTitle>
+                            <div>
+                                <Input
+                                    placeholder='Filter username'
+                                    value={username}
+                                    onChange={(event) => setUsername(event.target.value)}
+                                    className='max-w-sm'
+                                />
+                            </div>
+                        </div>
                     </CardHeader>
                     <CardContent className='p-0'>
-                        { users.length ? (
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>N°</TableHead>
-                                        <TableHead>UserName</TableHead>
-                                        <TableHead>Wins</TableHead>
-                                        <TableHead>Loses</TableHead>
-                                        <TableHead>Draws</TableHead>
-                                        <TableHead>Created At</TableHead>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>N°</TableHead>
+                                    <TableHead>UserName</TableHead>
+                                    <TableHead>Wins</TableHead>
+                                    <TableHead>Loses</TableHead>
+                                    <TableHead>Draws</TableHead>
+                                    <TableHead>Created At</TableHead>
+                                    <TableHead className='w-2'></TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {filterUsers.length ? filterUsers.map(user => (
+                                    <TableRow key={user.id}>
+                                        <TableCell>#{user.position}</TableCell>
+                                        <TableCell className='font-medium'>{user.username}</TableCell>
+                                        <TableCell>{user.wins}</TableCell>
+                                        <TableCell>{user.loses}</TableCell>
+                                        <TableCell>{user.draws}</TableCell>
+                                        <TableCell>{new Date(user.createdAt).toLocaleDateString()} {new Date(user.createdAt).toLocaleTimeString()}</TableCell>
+                                        <TableCell className='w-2'>
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    { playerInfo.id !== user.id && (
+                                                        <TooltipTrigger onClick={() => createChessMatchRequest(user.id)}>
+                                                            <PersonIcon />
+                                                        </TooltipTrigger>  
+                                                    )}
+                                                    <TooltipContent>Request Match</TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        </TableCell>
                                     </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {
-                                        users.map((user, i) => (
-                                            <TableRow key={user.id}>
-                                                <TableCell>{i + 1}°</TableCell>
-                                                <TableCell className='font-medium'>{user.username}</TableCell>
-                                                <TableCell>{user.wins}</TableCell>
-                                                <TableCell>{user.loses}</TableCell>
-                                                <TableCell>{user.draws}</TableCell>
-                                                <TableCell>{new Date(user.createdAt).toLocaleDateString()} {new Date(user.createdAt).toLocaleTimeString()}</TableCell>
-                                            </TableRow>
-                                        ))
-                                    } 
-                                </TableBody>
-                            </Table>
-                        ) : 'No Players Yet'
-                        }
-                                
+                                )) : <p className='p-4 w-full text-center'>No users</p> } 
+                            </TableBody>
+                        </Table>
+                        <Separator />
+                        <Pagination className='px-4 py-2 flex justify-between items-center w-full'>
+                            <CardDescription>{currentPage + 1} of {totalOfPages} page(s)</CardDescription>
+                            <div className='flex gap-2 items-center'>
+                                <CardDescription>Row(s) Per Page</CardDescription>
+                                <Select value={String(rowsPerPage)} onValueChange={(e) => setRowsPerPage(Number(e)) }>
+                                    <SelectTrigger className='w-[80px] h-8 border-solid'>
+                                        <SelectValue placeholder='' />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value='5'>5</SelectItem>
+                                        <SelectItem value='10'>10</SelectItem>
+                                        <SelectItem value='15'>15</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <PaginationContent>
+                                    <PaginationItem>
+                                        <Button className='w-8 h-8 p-0 border-solid' variant='outline' disabled={currentPage === 0} onClick={() => setCurrentPage(currentPage - 1)}>
+                                            <ChevronLeftIcon />
+                                        </Button>
+                                    </PaginationItem>
+                                    <PaginationItem>
+                                        <Button className='w-8 h-8 p-0 border-solid' variant='outline' disabled={currentPage === totalOfPages - 1} onClick={() => setCurrentPage(currentPage + 1)}>
+                                            <ChevronRightIcon />
+                                        </Button>
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </div>
+                        </Pagination>
                     </CardContent>
                 </Card>
                 <Card className='col-span-4 md:col-span-3'>
@@ -188,19 +245,17 @@ const Dashboard = ()=> {
                         {onlinePlayers ? (
                             <Table>
                                 <TableBody>
-                                    {
-                                        onlinePlayers.map((user, i) => (
-                                            <TableRow key={user.id + i}>
-                                                <TableCell className='w-2'>🟢</TableCell>
-                                                <TableCell className='font-medium'>{user.username} {playerInfo.id === user.id && '( Me )'}</TableCell>
-                                                <TableCell className='w-2 py-0'>
-                                                    { playerInfo.id !== user.id && (
-                                                        <Button size='default' className='text-xs h-8 m-0' onClick={() => createChessMatchRequest(user.id)}>Match Request</Button>
-                                                    )}
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    } 
+                                    {onlinePlayers.map((user, i) => (
+                                        <TableRow key={user.id + i}>
+                                            <TableCell className='w-2'>🟢</TableCell>
+                                            <TableCell className='font-medium'>{user.username} {playerInfo.id === user.id && '(Me)'}</TableCell>
+                                            <TableCell className='w-2 py-0'>
+                                                { playerInfo.id !== user.id && (
+                                                    <Button size='default' className='text-xs h-8 m-0' onClick={() => createChessMatchRequest(user.id)}>Match Request</Button>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))} 
                                 </TableBody>
                             </Table>
                         ) : ('No players yet')}

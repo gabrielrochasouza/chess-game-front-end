@@ -77,7 +77,6 @@ export const getUserByUsername = async (username: string) => {
 
 export const saveChat = async (roomId: string, chat: string) => {
     const token = localStorage.getItem('@Token');
-    console.log('chat', chat);
     return api.patch(`chess-games/save-chat/${roomId}`, {
         chat: chat,
     }, {
@@ -90,5 +89,11 @@ export const getRoomInfo = async (roomId: string) => {
     return api.get(`chess-games/${roomId}`, {
         headers: { authorization: `Bearer ${token}` }
     });
+};
 
+export const startMatch = async (roomId: string) => {
+    const token = localStorage.getItem('@Token');
+    return api.patch(`chess-games/start-game/${roomId}`, {}, {
+        headers: { authorization: `Bearer ${token}` }
+    });
 };

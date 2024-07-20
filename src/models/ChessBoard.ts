@@ -184,7 +184,7 @@ export class ChessBoard {
     }
 
     public selectPiece(l: number, c: number) {
-        if (l && c && this.chessBoard[l][c]?.currentPiece && this.turnOfPlay === this.chessBoard[l][c].currentPiece?.color) {
+        if (this.chessBoard[l][c]?.currentPiece && this.turnOfPlay === this.chessBoard[l][c].currentPiece?.color) {
             this.updateBoard();
             this.selectedPiece = this.chessBoard[l][c].currentPiece;
             this.previousLine = l;

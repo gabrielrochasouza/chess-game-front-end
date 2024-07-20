@@ -1,7 +1,7 @@
 import { DashboardNav } from '@/components/dashboard-nav';
 import { cn } from '@/lib/utils';
 import { Icons } from '@/components/icons';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { MenubarSeparator } from '@/components/ui/menubar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useUsers } from '@/provider/users';
@@ -39,7 +39,14 @@ const navItems: NavItem[] = [
 ];
 
 export default function Sidebar() {
-    const { chessGames, playerInfo } = useUsers();
+    const { chessGames, playerInfo, onlineUsers } = useUsers();
+    const { username } = useParams();
+
+    const onlineUsersIds: { [key: string]: boolean } = {};
+    
+    onlineUsers.forEach(user => {
+        onlineUsersIds[user] = true;
+    });
 
     return (
         <nav
@@ -62,15 +69,21 @@ export default function Sidebar() {
                             {
                                 chessGames.map(game => (
                                     <Link
-                                        to={`/dashboard/${playerInfo.username === game.username1 ? game.username2 : game.username1}/${game.id}`}
+                                        to={`/dashboard/${playerInfo.username}/${playerInfo.username === game.username1 ? game.username2 : game.username1}/${game.id}`}
                                         key={game.id}
                                     >
                                         <span
                                             className={cn(
                                                 'group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground'
                                             )}
+                                            style={{ backgroundColor: (username === game.username1 || username === game.username2) && '#222' }}
                                         >
-                                            <span>{playerInfo.username === game.username1 ? game.username2 : game.username1}</span>
+                                            <span>
+                                                {playerInfo.username === game.username1 ? (onlineUsersIds[game.userId2] && '🟢 ') : (onlineUsersIds[game.userId1] && '🟢 ')}
+                                                {playerInfo.username === game.username1 ? game.username2 : game.username1} 
+                                                {game.gameStarted && (<span className='text-lime-400'> (Started)</span>)}
+                                                {game.matchRequestMade && (<span className='text-teal-500'> (Request)</span>)}
+                                            </span>
                                         </span>
                                     </Link>
                                 ))

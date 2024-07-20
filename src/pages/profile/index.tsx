@@ -46,7 +46,6 @@ const Profile = ()=> {
     };
 
     const submitDeleteProfile = async () => {
-        console.log('delete profile');
         try {
             setLoadingDelete(true);
             await deleteUser(playerInfo.id);

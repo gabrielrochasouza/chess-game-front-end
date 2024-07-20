@@ -12,37 +12,63 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-    const { setOnlineUsers, setPlayerInfo, setChessGames } = useUsers();
+    const { setOnlineUsers, setPlayerInfo, setChessGames, playerInfo } = useUsers();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [progress, setProgress] = useState(0);
 
     const expiresIn = localStorage.getItem('@ExpiresIn') ? new Date(localStorage.getItem('@ExpiresIn')).valueOf() : null;
 
+    const loadPersonalInfo = ()=> {
+        setProgress(30);
+        checkToken()
+            .then(({ data }) => {
+                localStorage.setItem('@UserInfo', JSON.stringify(data.user));
+                setPlayerInfo(data.user);
+                setChessGames(data.chessGames);
+                setIsAuthenticated(true);
+                socket.emit('UserConnected', data.user);
+            })
+            .catch(() => {
+                setIsAuthenticated(false);
+                logout();
+            })
+            .finally(() => {
+                setProgress(100);
+            });
+    };
+
     useEffect(()=> {
-        socket.on('handleConnect', (payload: {sender: string, numberOfUsers: number, users: string[]}) => {
+        socket.on('handleConnectUser', (payload: {sender: string, numberOfUsers: number, users: string[]}) => {
             setOnlineUsers(payload.users);
         });
-        socket.on('handleDisconnect', (payload: {sender: string, numberOfUsers: number, users: string[]}) => {
+        socket.on('handleDisconnectUser', (payload: {sender: string, numberOfUsers: number, users: string[]}) => {
             setOnlineUsers(payload.users);
+        });
+        socket.on('reloadInfo', (payload: { userId: string }) => {
+            const playerId = localStorage.getItem('@UserId') || playerInfo.id;
+            if (payload.userId === playerId) {
+                checkToken()
+                    .then(({ data }) => {
+                        localStorage.setItem('@UserInfo', JSON.stringify(data.user));
+                        setPlayerInfo(data.user);
+                        setChessGames(data.chessGames);
+                        socket.emit('UserConnected', data.user);
+                    })
+                    .catch(() => {
+                        setIsAuthenticated(false);
+                        logout();
+                    });
+            }
+        });
+
+        socket.on('initialEvent', (socket) => {
+            if (localStorage.getItem('@UserInfo')) {
+                socket.emit('UserConnected', JSON.parse(localStorage.getItem('@UserInfo')));
+            }
         });
 
         if (!expiresIn || Date.now() < expiresIn) {
-            setProgress(30);
-            checkToken()
-                .then(({ data }) => {
-                    localStorage.setItem('@UserInfo', JSON.stringify(data.user));
-                    setPlayerInfo(data.user);
-                    setChessGames(data.chessGames);
-                    setIsAuthenticated(true);
-                    socket.emit('UserConnected', data.user);
-                })
-                .catch(() => {
-                    setIsAuthenticated(false);
-                    logout();
-                })
-                .finally(() => {
-                    setProgress(100);
-                });
+            loadPersonalInfo();
         }
     }, []);
 

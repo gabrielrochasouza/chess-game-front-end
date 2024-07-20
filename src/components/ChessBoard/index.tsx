@@ -29,9 +29,10 @@ interface Payload {
     selectedColumn: number,
     targetLine: number,
     targetColumn: number,
+    chessRoomId: string,
 }
 
-function ChessBoard({ chessPieceSide, chessBoardInstance }: IChessBoardComponent) { // TODO: should receive prop of which chesspiece color player is playing
+function ChessBoard({ chessPieceSide, chessBoardInstance }: IChessBoardComponent) {
     const {
         chessBoard,
         turnOfPlay,
@@ -47,19 +48,23 @@ function ChessBoard({ chessPieceSide, chessBoardInstance }: IChessBoardComponent
     const forceUpdate = useCallback(() => updateState({} as undefined), []);
     const { roomId } = useParams();
 
+    const movePieceOfAdversary = ({
+        selectedLine, selectedColumn, targetLine, targetColumn, chessRoomId,
+    }: Payload): void => {
+        if (chessPieceSide !== turnOfPlay && chessRoomId === roomId) {
+            chessBoardInstance.selectPiece(selectedLine, selectedColumn);
+            chessBoardInstance.movePiece(targetLine, targetColumn);
+            forceUpdate();
+        }
+    };
     useEffect(() => {
-        const movePieceOfAdversary = ({
-            selectedLine, selectedColumn, targetLine, targetColumn
-        }: Payload): void => {
-            if (chessPieceSide !== turnOfPlay) {
-                chessBoardInstance.selectPiece(selectedLine, selectedColumn);
-                chessBoardInstance.movePiece(targetLine, targetColumn);
-                forceUpdate();
-            }
-        };
-        socket.on('message', (payload: Payload) => {
+        socket.on('movePiece', (payload: Payload) => {
             movePieceOfAdversary(payload);
         });
+
+        return () => {
+            socket.off('movePiece');
+        };
     }, [turnOfPlay, chessPieceSide, forceUpdate, roomId]);
 
     const clickOnCellHandler = (targetLine: number, targetColumn: number) => {
@@ -73,8 +78,9 @@ function ChessBoard({ chessPieceSide, chessBoardInstance }: IChessBoardComponent
                     selectedColumn: chessBoardInstance.previousColumn,
                     targetColumn: targetColumn,
                     targetLine: targetLine,
+                    chessRoomId: roomId,
                 };
-                socket.emit('message', message);
+                socket.emit('movePiece', message);
             } else if (chessBoardInstance.mode === 'movePiece' && chessBoard[targetLine][targetColumn].currentPiece?.color === turnOfPlay) {
                 chessBoardInstance.selectPiece(targetLine, targetColumn);
             } else {
