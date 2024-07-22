@@ -16,7 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, SendHorizonal } from 'lucide-react';
+import { ChevronRight, SendHorizonal } from 'lucide-react';
 import { useUsers } from '@/provider/users';
 import { declineRequest, getRoomInfo, sendChessMatchRequest, startMatch } from '@/api';
 import { ScrollArea } from '@/components/ui/scroll-area';
