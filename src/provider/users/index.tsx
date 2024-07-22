@@ -35,6 +35,7 @@ interface IChessGames {
     updatedAt: string,
     user1: IPlayerInfo,
     user2: IPlayerInfo,
+    userIdOfRequest: string,
 }
 
 interface ContextProps{
@@ -49,8 +50,13 @@ interface ContextProps{
     chessBoardRoomsInstances: IChessBoardRoomsInstances,
     setChessBoardRoomsInstances: (chessBoardRoomsInstances: IChessBoardRoomsInstances) => void,
     chatMessagesRooms: IChatMessagesRooms,
-    sendChatMessageToRoom: ({message, roomId, username}: { message: string, roomId: string, username: string }) => void,
+    sendChatMessageToRoom: ({message, roomId, username, targetUserId }: { message: string, roomId: string, username: string, targetUserId: string }) => void,
     setChatMessagesRooms: (chatMessagesRooms: IChatMessagesRooms) => void,
+    menuOpened: boolean,
+    setMenuOpened: (menu: boolean) => void,
+    notifications: INotification[],
+    setNotifications: (notifications: INotification[]) => void,
+    updateNotifications: (notification: INotification) => void,
 }
 
 interface IChessBoardRoomsInstances {
@@ -67,6 +73,14 @@ interface IChatMessagesRooms {
     [key: string]: IChatMessage[]; 
 }
 
+interface INotification {
+    message: string,
+    createdAt: string,
+    targetUserId: string,
+    username: string,
+    roomId: string,
+}
+
 const UsersContext = createContext<ContextProps>({} as ContextProps);
 
 export const UsersProvider = ({children}:ProviderProps)=>{
@@ -76,8 +90,16 @@ export const UsersProvider = ({children}:ProviderProps)=>{
     const [chessGames, setChessGames] = useState<IChessGames[]>([] as IChessGames[]);
     const [chessBoardRoomsInstances, setChessBoardRoomsInstances] = useState<IChessBoardRoomsInstances>({} as IChessBoardRoomsInstances);
     const [chatMessagesRooms, setChatMessagesRooms] = useState<IChatMessagesRooms>({} as IChatMessagesRooms);
+    const [menuOpened, setMenuOpened] = useState<boolean>(window.innerWidth >= 1024);
+    const [notifications, setNotifications] = useState<INotification[]>([] as INotification[]);
 
-    const sendChatMessageToRoom = ({ message, roomId, username }: { message: string, roomId: string, username: string }) => {
+    const updateNotifications = (payload: INotification) => {
+        notifications.push(payload);
+        const newNotifications = [...notifications, payload].slice(0, -1);
+        setNotifications(newNotifications);
+    };
+
+    const sendChatMessageToRoom = ({ message, roomId, username, targetUserId }: { message: string, roomId: string, username: string, targetUserId: string }) => {
         const newMessage: IChatMessage = { createdAt: new Date(), message, roomId, username };
 
         const updatedMessages = chatMessagesRooms[roomId] ? {
@@ -91,7 +113,7 @@ export const UsersProvider = ({children}:ProviderProps)=>{
         if (updatedMessages) {
             setChatMessagesRooms(updatedMessages);
         }
-        socket.emit('sendChatMessage', { messages: updatedMessages[roomId], roomId, username: playerInfo.username });
+        socket.emit('sendChatMessage', { messages: updatedMessages[roomId], roomId, username: playerInfo.username, targetUserId });
     }; 
 
     return(
@@ -109,6 +131,11 @@ export const UsersProvider = ({children}:ProviderProps)=>{
             chatMessagesRooms,
             sendChatMessageToRoom,
             setChatMessagesRooms,
+            menuOpened,
+            setMenuOpened,
+            notifications,
+            setNotifications,
+            updateNotifications,
         }}>
             {children}
         </UsersContext.Provider>

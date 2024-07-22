@@ -97,3 +97,17 @@ export const startMatch = async (roomId: string) => {
         headers: { authorization: `Bearer ${token}` }
     });
 };
+
+export const sendChessMatchRequest = async (roomId: string) => {
+    const token = localStorage.getItem('@Token');
+    return api.patch(`chess-games/make-match-request/${roomId}`, {}, {
+        headers: { authorization: `Bearer ${token}` }
+    });
+};
+
+export const declineRequest = async (roomId: string) => {
+    const token = localStorage.getItem('@Token');
+    return api.patch(`chess-games/finish-game/${roomId}`, {}, {
+        headers: { authorization: `Bearer ${token}` }
+    });
+};

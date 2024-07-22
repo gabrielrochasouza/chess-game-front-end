@@ -21,7 +21,8 @@ interface IControlledPosition {
 
 interface IChessBoardComponent {
     chessPieceSide: colorType,
-    chessBoardInstance: ChessBoardClass
+    chessBoardInstance: ChessBoardClass,
+    playerIsOnline: boolean,
 }
 
 interface Payload {
@@ -30,9 +31,10 @@ interface Payload {
     targetLine: number,
     targetColumn: number,
     chessRoomId: string,
+    userId: string,
 }
 
-function ChessBoard({ chessPieceSide, chessBoardInstance }: IChessBoardComponent) {
+function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline }: IChessBoardComponent) {
     const {
         chessBoard,
         turnOfPlay,
@@ -67,6 +69,12 @@ function ChessBoard({ chessPieceSide, chessBoardInstance }: IChessBoardComponent
         };
     }, [turnOfPlay, chessPieceSide, forceUpdate, roomId]);
 
+    useEffect(() => {
+        if (!playerIsOnline) {
+            chessBoardInstance.startGame();
+        }
+    }, [playerIsOnline]);
+
     const clickOnCellHandler = (targetLine: number, targetColumn: number) => {
         if (!checkMate && chessPieceSide === turnOfPlay) {
             if (chessBoardInstance.mode === 'selectPiece') {
@@ -79,6 +87,7 @@ function ChessBoard({ chessPieceSide, chessBoardInstance }: IChessBoardComponent
                     targetColumn: targetColumn,
                     targetLine: targetLine,
                     chessRoomId: roomId,
+                    userId: localStorage.getItem('@UserId'),
                 };
                 socket.emit('movePiece', message);
             } else if (chessBoardInstance.mode === 'movePiece' && chessBoard[targetLine][targetColumn].currentPiece?.color === turnOfPlay) {
@@ -134,7 +143,7 @@ function ChessBoard({ chessPieceSide, chessBoardInstance }: IChessBoardComponent
                     {deadPieces.filter(p => p.color === 'white').map((p, i) => <img src={p.piece.svgFile} alt={p.piece.name} key={p.color + i} />)}
                 </div>
             </div>
-            <div className='board'>
+            <div className='board relative'>
                 {ChessBoardComponent.map((line: chessBoardType[]) => (
                     line.map((square: chessBoardType) => (
                         <div
@@ -177,6 +186,11 @@ function ChessBoard({ chessPieceSide, chessBoardInstance }: IChessBoardComponent
                     )
                     )
                 ))}
+                {!playerIsOnline && (
+                    <div className='absolute w-full h-full top-0 left-0 flex justify-center items-center z-20 bg-stone-950/[.5]'>
+                    Player is offline...
+                    </div>
+                )}
             </div>
             <div className='info-block'>
                 <div className='turn-indicator centralize'>

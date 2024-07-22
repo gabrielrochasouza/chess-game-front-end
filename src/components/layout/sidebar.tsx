@@ -3,8 +3,8 @@ import { cn } from '@/lib/utils';
 import { Icons } from '@/components/icons';
 import { Link, useParams } from 'react-router-dom';
 import { MenubarSeparator } from '@/components/ui/menubar';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useUsers } from '@/provider/users';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 
 interface NavItem {
@@ -39,7 +39,7 @@ const navItems: NavItem[] = [
 ];
 
 export default function Sidebar() {
-    const { chessGames, playerInfo, onlineUsers } = useUsers();
+    const { chessGames, playerInfo, onlineUsers, menuOpened } = useUsers();
     const { username } = useParams();
 
     const onlineUsersIds: { [key: string]: boolean } = {};
@@ -50,7 +50,8 @@ export default function Sidebar() {
 
     return (
         <nav
-            className={cn('relative hidden h-screen border-r pt-16 lg:block w-72')}
+            className={cn('relative h-screen border-r pt-16 lg:block w-72 max-w-72 overflow-auto transition-all z-20 sidebarmenu')}
+            style={{ maxWidth: menuOpened ? '230px' : '0px', left: '-1px' }}
         >
             <div className='space-y-4 py-4'>
                 <div className='px-3 py-2'>
@@ -61,7 +62,7 @@ export default function Sidebar() {
                         <DashboardNav items={navItems} />
                     </div>
                     <MenubarSeparator />
-                    <ScrollArea className='h-full'>
+                    <div className='h-full'>
                         <div className='space-y-1 mt-4'>
                             <h2 className='mb-2 px-4 text-xl font-semibold tracking-tight'>
                             Chess Matches
@@ -72,24 +73,34 @@ export default function Sidebar() {
                                         to={`/dashboard/${playerInfo.username}/${playerInfo.username === game.username1 ? game.username2 : game.username1}/${game.id}`}
                                         key={game.id}
                                     >
-                                        <span
-                                            className={cn(
-                                                'group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground'
-                                            )}
-                                            style={{ backgroundColor: (username === game.username1 || username === game.username2) && '#222' }}
-                                        >
-                                            <span>
-                                                {playerInfo.username === game.username1 ? (onlineUsersIds[game.userId2] && '🟢 ') : (onlineUsersIds[game.userId1] && '🟢 ')}
-                                                {playerInfo.username === game.username1 ? game.username2 : game.username1} 
-                                                {game.gameStarted && (<span className='text-lime-400'> (Started)</span>)}
-                                                {game.matchRequestMade && (<span className='text-teal-500'> (Request)</span>)}
-                                            </span>
-                                        </span>
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger className='block w-full text-start'>
+                                                    <span
+                                                        className={cn(
+                                                            'group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground truncate block'
+                                                        )}
+                                                        style={{ backgroundColor: (username === game.username1 || username === game.username2) && '#222' }}
+                                                    >
+                                                        <span className={ game.gameStarted ? 'text-lime-400' : (game.matchRequestMade && 'text-teal-500') }>
+                                                            {playerInfo.username === game.username1 ? (onlineUsersIds[game.userId2] && '🟢 ') : (onlineUsersIds[game.userId1] && '🟢 ')}
+                                                            {playerInfo.username === game.username1 ? game.username2 : game.username1} {' '}
+                                                        </span>
+                                                    </span>
+                                                </TooltipTrigger>
+                                                { (game.gameStarted || game.matchRequestMade) && (
+                                                    <TooltipContent>
+                                                        {game.gameStarted && (<span className='text-lime-400'>(Game Started)</span>)}
+                                                        {game.matchRequestMade && (<span className='text-teal-500'>(Request Made)</span>)}
+                                                    </TooltipContent>
+                                                ) }  
+                                            </Tooltip>
+                                        </TooltipProvider>
                                     </Link>
                                 ))
                             }
                         </div>
-                    </ScrollArea>
+                    </div>
                 </div>
             </div>
         </nav>

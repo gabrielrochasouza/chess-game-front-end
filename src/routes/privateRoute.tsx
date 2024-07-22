@@ -5,21 +5,21 @@ import { logout } from '@/utils';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import LoadingBar from 'react-top-loading-bar';
+// import LoadingBar from 'react-top-loading-bar';
 
 interface PrivateRouteProps {
   children: ReactNode;
 }
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-    const { setOnlineUsers, setPlayerInfo, setChessGames, playerInfo } = useUsers();
+    const { setOnlineUsers, setPlayerInfo, setChessGames, playerInfo, updateNotifications } = useUsers();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [progress, setProgress] = useState(0);
+    // const [progress, setProgress] = useState(0);
 
     const expiresIn = localStorage.getItem('@ExpiresIn') ? new Date(localStorage.getItem('@ExpiresIn')).valueOf() : null;
 
     const loadPersonalInfo = ()=> {
-        setProgress(30);
+        // setProgress(30);
         checkToken()
             .then(({ data }) => {
                 localStorage.setItem('@UserInfo', JSON.stringify(data.user));
@@ -33,7 +33,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
                 logout();
             })
             .finally(() => {
-                setProgress(100);
+                // setProgress(100);
             });
     };
 
@@ -44,7 +44,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
         socket.on('handleDisconnectUser', (payload: {sender: string, numberOfUsers: number, users: string[]}) => {
             setOnlineUsers(payload.users);
         });
-        socket.on('reloadInfo', (payload: { userId: string }) => {
+        socket.on('reloadGlobal', (payload: { userId: string }) => {
             const playerId = localStorage.getItem('@UserId') || playerInfo.id;
             if (payload.userId === playerId) {
                 checkToken()
@@ -60,16 +60,30 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
                     });
             }
         });
-
-        socket.on('initialEvent', (socket) => {
+        socket.on('initialEvent', () => {
             if (localStorage.getItem('@UserInfo')) {
                 socket.emit('UserConnected', JSON.parse(localStorage.getItem('@UserInfo')));
+            }
+        });
+        socket.on('sendNotification', (payload: { targetUserId: string, message: string, createdAt: string, username: string, roomId: string }) => {
+            const playerId = localStorage.getItem('@UserId') || playerInfo.id;
+            if (payload.targetUserId === playerId) {
+                updateNotifications(payload);
             }
         });
 
         if (!expiresIn || Date.now() < expiresIn) {
             loadPersonalInfo();
         }
+
+        return () => {
+            socket.off('movePiece');
+            socket.off('initialEvent');
+            socket.off('reloadGlobal');
+            socket.off('handleDisconnectUser');
+            socket.off('handleConnectUser');
+            socket.off('sendNotification');
+        };
     }, []);
 
     if (expiresIn && Date.now() > expiresIn) {
@@ -86,7 +100,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
     if (localStorage.getItem('@Token') && isAuthenticated) {
         return (
             <>
-                <LoadingBar color='#f11946' progress={progress} onLoaderFinished={() => setProgress(0)} />
+                {/* <LoadingBar color='#f11946' progress={progress} onLoaderFinished={() => setProgress(0)} /> */}
                 {children}
             </>
         ); 

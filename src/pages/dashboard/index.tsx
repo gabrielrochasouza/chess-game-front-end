@@ -15,7 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { socket } from '@/socket-client/socket';
-import { PersonIcon, ChevronRightIcon, ChevronLeftIcon } from '@radix-ui/react-icons';
+import { PersonIcon, ChevronRightIcon, ChevronLeftIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
 import { Pagination, PaginationContent, PaginationItem } from '@/components/ui/pagination';
@@ -26,6 +26,7 @@ const Dashboard = ()=> {
     const [username, setUsername] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [loaded, setLoaded] = useState(false);
 
     const onlinePlayers = users.filter(u => onlineUsers.includes(u.id));
 
@@ -34,6 +35,8 @@ const Dashboard = ()=> {
     useEffect(() => {
         getUsers().then(({data}) => {
             setUsers(data);
+        }).finally(() => {
+            setLoaded(true);
         });
     }, []);
 
@@ -64,6 +67,7 @@ const Dashboard = ()=> {
                         Hi {playerInfo.username}, Welcome back 👋
                 </h2>
             </div>
+            {/* Cards Indicator */}
             <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
                 <Card>
                     <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
@@ -84,7 +88,7 @@ const Dashboard = ()=> {
                         </svg>
                     </CardHeader>
                     <CardContent>
-                        <div className='text-2xl font-bold'>{onlineUsers.length || 0}</div>
+                        <div className='text-2xl font-bold'>{loaded ? (onlineUsers.length || 0) : <ReloadIcon className='mr-2 animate-spin' />}</div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -104,7 +108,7 @@ const Dashboard = ()=> {
                         </svg>
                     </CardHeader>
                     <CardContent>
-                        <div className='text-2xl font-bold'>{playerInfo.wins}</div>
+                        <div className='text-2xl font-bold'>{loaded ? playerInfo.wins : <ReloadIcon className='mr-2 animate-spin' />}</div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -126,7 +130,7 @@ const Dashboard = ()=> {
                         </svg>
                     </CardHeader>
                     <CardContent>
-                        <div className='text-2xl font-bold'>{playerInfo.loses}</div>
+                        <div className='text-2xl font-bold'>{loaded ? playerInfo.loses : <ReloadIcon className='mr-2 animate-spin' />}</div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -148,14 +152,16 @@ const Dashboard = ()=> {
                         </svg>
                     </CardHeader>
                     <CardContent>
-                        <div className='text-2xl font-bold'>{playerInfo.draws}</div>
+                        <div className='text-2xl font-bold'>{loaded ? playerInfo.draws : <ReloadIcon className='mr-2 animate-spin' />}</div>
                     </CardContent>
                 </Card>
             </div>
+            {/* Main part */}
             <div className='grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-7 pb-4'>
+                {/* Left Column */}
                 <Card className='col-span-4'>
                     <CardHeader className='flex items-center'>
-                        <div className='w-full flex py-0 justify-between items-center'>
+                        <div className='w-full flex py-0 justify-between items-center gap-4'>
                             <CardTitle>Ranking</CardTitle>
                             <div>
                                 <Input
@@ -175,8 +181,8 @@ const Dashboard = ()=> {
                                     <TableHead>UserName</TableHead>
                                     <TableHead>Wins</TableHead>
                                     <TableHead>Loses</TableHead>
-                                    <TableHead>Draws</TableHead>
-                                    <TableHead>Created At</TableHead>
+                                    <TableHead className='hidden lg:table-cell'>Draws</TableHead>
+                                    <TableHead className='hidden lg:table-cell'>Created At</TableHead>
                                     <TableHead className='w-2'></TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -187,8 +193,8 @@ const Dashboard = ()=> {
                                         <TableCell className='font-medium'>{user.username}</TableCell>
                                         <TableCell>{user.wins}</TableCell>
                                         <TableCell>{user.loses}</TableCell>
-                                        <TableCell>{user.draws}</TableCell>
-                                        <TableCell>{new Date(user.createdAt).toLocaleDateString()} {new Date(user.createdAt).toLocaleTimeString()}</TableCell>
+                                        <TableCell className='hidden lg:table-cell'>{user.draws}</TableCell>
+                                        <TableCell className='hidden lg:table-cell'>{new Date(user.createdAt).toLocaleDateString()} {new Date(user.createdAt).toLocaleTimeString()}</TableCell>
                                         <TableCell className='w-2'>
                                             <TooltipProvider>
                                                 <Tooltip>
@@ -202,11 +208,17 @@ const Dashboard = ()=> {
                                             </TooltipProvider>
                                         </TableCell>
                                     </TableRow>
-                                )) : <p className='p-4 w-full text-center'>No users</p> } 
+                                )) : (
+                                    <TableRow>
+                                        <TableCell>
+                                            {loaded ? 'No users' : 'Loading...'}
+                                        </TableCell>
+                                    </TableRow>
+                                ) } 
                             </TableBody>
                         </Table>
                         <Separator />
-                        <Pagination className='px-4 py-2 flex justify-between items-center w-full'>
+                        <Pagination className='p-4 flex justify-between items-center w-full'>
                             <CardDescription>{currentPage + 1} of {totalOfPages} page(s)</CardDescription>
                             <div className='flex gap-2 items-center'>
                                 <CardDescription>Row(s) Per Page</CardDescription>
@@ -236,6 +248,7 @@ const Dashboard = ()=> {
                         </Pagination>
                     </CardContent>
                 </Card>
+                {/* Right Column */}
                 <Card className='col-span-4 md:col-span-3'>
                     <CardHeader>
                         <CardTitle>Online Players</CardTitle>
@@ -258,7 +271,7 @@ const Dashboard = ()=> {
                                     ))} 
                                 </TableBody>
                             </Table>
-                        ) : ('No players yet')}
+                        ) : (loaded ? 'No players yet' : 'Loading...')}
                         <Separator />
                     </CardContent>
                 </Card>

@@ -72,6 +72,30 @@
   display: inline-block;
   position: relative;
 }
+
+@media (max-width: 1024px) {
+  .sidebarmenu {
+    position: absolute;
+    background-color: #09090b;
+  }
+}
+
+@media (min-width: 768px) {
+  .hide-laptop {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .show-chat {
+    flex: 1 !important;
+  }
+
+  .hide-column {
+    flex: 0 !important;
+  }
+
+}
  
 @layer base {
   * {
