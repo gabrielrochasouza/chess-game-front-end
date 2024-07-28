@@ -187,7 +187,7 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline }: IChe
                     )
                 ))}
                 {!playerIsOnline && (
-                    <div className='absolute w-full h-full top-0 left-0 flex justify-center items-center z-20 bg-stone-950/[.5]'>
+                    <div className='absolute w-full h-full top-0 left-0 flex justify-center items-center z-10 bg-stone-950/[.5]'>
                     Player is offline...
                     </div>
                 )}

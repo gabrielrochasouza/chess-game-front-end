@@ -41,11 +41,11 @@ const Register = ()=> {
 
     return (
         <ScrollArea className='h-full h-lvh flex justify-center items-center'>
-            <div className='flex-1 h-full justify-center align-center hidden 2xl:flex relative border-r'>
+            <div className='flex-1 h-full justify-center align-center hidden xl:flex relative'>
                 <video autoPlay loop muted className='w-full h-full object-cover'>
                     <source src={ChessVideo} />
                 </video>
-                <div className='absolute top-0 left-0 w-full h-full bg-slate-200/[.5]'></div>
+                <div className='absolute top-0 left-0 w-full h-full' style={{ background: 'linear-gradient(270deg, #09090b, #09090ba3)' }}></div>
             </div>
             <div className='flex-1 flex justify-center align-center'>
                 <form onSubmit={submitRegisterForm}>

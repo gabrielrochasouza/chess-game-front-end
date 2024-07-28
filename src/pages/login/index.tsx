@@ -56,17 +56,17 @@ const Login = ()=> {
                                 {loading && <ReloadIcon className='mr-2 animate-spin' />} Enter
                             </Button>
                             <Link to='/register' className='w-full'>
-                                <Button variant='outline' className='flex-1 w-full border-solid'>Create an account</Button>
+                                <Button variant='outline' type='button' className='flex-1 w-full border-solid'>Create an account</Button>
                             </Link>
                         </CardFooter>
                     </Card>
                 </form>
             </div>
-            <div className='flex-1 h-full justify-center align-center hidden 2xl:flex relative border-l'>
+            <div className='flex-1 h-full justify-center align-center hidden xl:flex relative'>
                 <video autoPlay loop muted className='w-full h-full object-cover'>
                     <source src={ChessVideo} />
                 </video>
-                <div className='absolute top-0 left-0 w-full h-full bg-slate-200/[.5]'></div>
+                <div className='absolute top-0 left-0 w-full h-full' style={{ background: 'linear-gradient(90deg, #09090b, #09090ba3)' }}></div>
             </div>
         </ScrollArea>
     );

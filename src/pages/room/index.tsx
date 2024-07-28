@@ -332,8 +332,7 @@ const Room = ()=> {
                                 {gameStatus === STATUS_GAME_STARTED && (
                                     <div className='p-0 mt-8'>
                                         <Button variant='destructive' className='ml-0' disabled={loadingDeclineEvent} onClick={() => handleDecline()}>
-                                            {loadingDeclineEvent && <ReloadIcon className='mr-2 animate-spin' />}
-                                            End Game
+                                            {loadingDeclineEvent && <ReloadIcon className='mr-2 animate-spin' />} Give Up
                                         </Button>
                                         {chessBoardRoomsInstances[roomId] && <ChessBoard chessPieceSide={playerColorSide} chessBoardInstance={chessBoardRoomsInstances[roomId]} playerIsOnline={playerIsOnline} />}
                                     </div>
