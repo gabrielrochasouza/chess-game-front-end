@@ -10,9 +10,10 @@ import {
     MenubarTrigger,
 } from '@/components/ui/menubar';
 import { useUsers } from '@/provider/users';
-import { logout } from '@/utils';
+import { formatDateTime, logout } from '@/utils';
 import { HamburgerMenuIcon, BellIcon } from '@radix-ui/react-icons';
 import { Button } from '@/components/ui/button';
+import { checkToken, readAllMessages } from '@/api';
 
 
 interface INotification {
@@ -25,7 +26,7 @@ interface INotification {
 
 
 export default function Header() {
-    const { playerInfo, menuOpened, setMenuOpened, notifications, setNotifications } = useUsers();
+    const { playerInfo, menuOpened, setMenuOpened, notifications, setNotifications, setChessGames } = useUsers();
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -35,8 +36,27 @@ export default function Header() {
     
     const handleNavigateToPage = (payload: INotification) => {
         if (payload.username && payload.roomId) {
-            navigate(`/dashboard/${localStorage.getItem('@UserId')}/${payload.username}/${payload.roomId}`);
+            navigate(`/dashboard/${playerInfo.username}/${payload.username}/${payload.roomId}`);
+            readMessages();
         }
+    };
+
+    const handleReadNotifications = (menuBarClosed: boolean) => {
+        if (menuBarClosed) {
+            readMessages();
+        }
+    };
+
+    const readMessages = () => {
+        const userId = localStorage.getItem('@UserId') || playerInfo.id;
+        readAllMessages(userId).then(() => {
+            checkToken()
+                .then(({ data }) => {
+                    localStorage.setItem('@UserInfo', JSON.stringify(data.user));
+                    setNotifications(data.user.notifications);
+                    setChessGames(data.chessGames);
+                });
+        });
     };
 
     return (
@@ -49,35 +69,34 @@ export default function Header() {
                 </div>
                 <div className='lg:mr-4 flex gap-4 item-center'>
                     
-                    <Menubar className='p-0 m-0 bg-transparent rounded-full border-0'>
+                    <Menubar className='p-0 m-0 bg-transparent rounded-full border-0' onValueChange={(e) => handleReadNotifications(!e)}>
                         <MenubarMenu>
                             <MenubarTrigger className='p-0 m-0 rounded-full border-0'>
                                 <Button variant='ghost' className='rounded-full w-12 h-12 p-2 relative border-0'>
                                     <BellIcon className='w-6 h-6' />
-                                    {notifications.length ? (
+                                    {notifications.filter(notification => !notification.readMessageAt).length ? (
                                         <div className='absolute bottom-1 right-1 rounded-full bg-red-800 text-white flex justify-center items-center min-w-4 min-h-4 text-[11px]'>
-                                            {notifications.length}
+                                            {notifications.filter(notification => !notification.readMessageAt).length}
                                         </div>
                                     ) : (<></>)}
                                 </Button>
                             </MenubarTrigger>
-                            {notifications.length ? (
-                                <MenubarContent className='pb-1 mr-8 min-w-80 max-w-80'>
-                                    <MenubarItem className='text-lg'>Notifications</MenubarItem>
-                                    <MenubarSeparator />
-                                    <div className='overflow-auto max-h-80 max-w-80 px-0'>
-                                        {notifications.slice(0).reverse().map((notification, index) => (
-                                            <MenubarItem key={index} className='pt-4 pb-10 px-1 relative' onClick={() => handleNavigateToPage(notification)}>
-                                                <p className='line-clamp-2 max-w-full'>🟡 {notification.message}</p>
-                                                <span className='absolute right-2 bottom-0 text-[11px] text-slate-400'>{new Date(notification.createdAt).toLocaleString()}</span>
-                                            </MenubarItem>
-                                        ))}
-                                    </div>
-                                    <Button className='mt-4 w-full' variant='secondary' onClick={() => setNotifications([])}>
-                                        Clear All Notifications
-                                    </Button>
-                                </MenubarContent>
-                            ) : ''}
+                            <MenubarContent className='pb-1 mr-4 min-w-80 max-w-80' onChange={() => console.log('teste')}>
+                                {notifications.length ? (
+                                    <>
+                                        <MenubarItem className='text-lg'>Notifications</MenubarItem>
+                                        <MenubarSeparator />
+                                        <div className='overflow-auto max-h-80 max-w-80 px-0'>
+                                            {notifications.slice(0).reverse().map((notification, index) => (
+                                                <MenubarItem key={index} className='pt-4 pb-10 px-1 relative' onClick={() => handleNavigateToPage(notification)}>
+                                                    <p className='line-clamp-2 max-w-full'>{!notification.readMessageAt && '🟡 '} {notification.message}</p>
+                                                    <span className='absolute right-2 bottom-0 text-[11px] text-slate-400'>{formatDateTime(notification.createdAt)}</span>
+                                                </MenubarItem>
+                                            ))}
+                                        </div>
+                                    </>
+                                ) : <MenubarItem className='p-4'>No Notifications</MenubarItem>}
+                            </MenubarContent>
                         </MenubarMenu>
                     </Menubar>
                     

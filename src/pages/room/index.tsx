@@ -29,6 +29,7 @@ import { toast } from 'react-toastify';
 import { ReloadIcon, ChatBubbleIcon } from '@radix-ui/react-icons';
 import { IChessGames } from '@/types/chess-game.types';
 import { IUserInfo } from '@/types/users.types';
+import { formatDateTime } from '@/utils';
 
 
 const STATUS_NO_MATCH_REQUEST = 0;
@@ -190,16 +191,6 @@ const Room = ()=> {
         setChessGames(chessGames);
     };
 
-    const formatDatetime = (createdAt: Date) => {
-        const dateInstance = new Date(createdAt);
-        const time = dateInstance.toLocaleTimeString().slice(0, -3);
-        const date = dateInstance.toLocaleDateString();
-        if (date === new Date().toLocaleDateString()) {
-            return `Hoje ${time}`;
-        }
-        return `${date} ${time}`;
-    };
-
     // ============================================
     // Chat functions
     // ============================================
@@ -339,8 +330,8 @@ const Room = ()=> {
                                     </Card>
                                 )}
                                 {gameStatus === STATUS_GAME_STARTED && (
-                                    <div className='p-4 mt-8'>
-                                        <Button variant='destructive' className='ml-4' disabled={loadingDeclineEvent} onClick={() => handleDecline()}>
+                                    <div className='p-0 mt-8'>
+                                        <Button variant='destructive' className='ml-0' disabled={loadingDeclineEvent} onClick={() => handleDecline()}>
                                             {loadingDeclineEvent && <ReloadIcon className='mr-2 animate-spin' />}
                                             End Game
                                         </Button>
@@ -392,7 +383,7 @@ const Room = ()=> {
                                                 <div className='absolute top-1 left-2' style={{ fontSize: '9px' }}>{chat.username}</div>
                                                 <div className='mt-4'>{chat.message}</div>
                                                 <div className='absolute bottom-0 right-2' style={{ fontSize: '8px' }}>
-                                                    {formatDatetime(chat.createdAt)}
+                                                    {formatDateTime(chat.createdAt.toString())}
                                                 </div>
                                             </div>
                                         </div>

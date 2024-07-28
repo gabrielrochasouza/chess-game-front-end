@@ -111,3 +111,31 @@ export const declineRequest = async (roomId: string) => {
         headers: { authorization: `Bearer ${token}` }
     });
 };
+
+export const readAllMessages = async (userId: string) => {
+    const token = localStorage.getItem('@Token');
+    return api.get(`users/${userId}/read-all-notifications`, {
+        headers: { authorization: `Bearer ${token}` }
+    });
+};
+
+export const increaseWinCounter = async (userId: string) => {
+    const token = localStorage.getItem('@Token');
+    return api.patch(`users/${userId}/win`, {}, {
+        headers: { authorization: `Bearer ${token}` }
+    });
+};
+
+export const increaseLoseCounter = async (userId: string) => {
+    const token = localStorage.getItem('@Token');
+    return api.patch(`users/${userId}/lose`, {}, {
+        headers: { authorization: `Bearer ${token}` }
+    });
+};
+
+export const increaseDrawCounter = async (userId: string) => {
+    const token = localStorage.getItem('@Token');
+    return api.patch(`users/${userId}/draw`, {}, {
+        headers: { authorization: `Bearer ${token}` }
+    });
+};

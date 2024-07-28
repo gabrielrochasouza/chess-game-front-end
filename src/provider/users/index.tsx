@@ -79,6 +79,7 @@ interface INotification {
     targetUserId: string,
     username: string,
     roomId: string,
+    readMessageAt: string,
 }
 
 const UsersContext = createContext<ContextProps>({} as ContextProps);
@@ -94,8 +95,8 @@ export const UsersProvider = ({children}:ProviderProps)=>{
     const [notifications, setNotifications] = useState<INotification[]>([] as INotification[]);
 
     const updateNotifications = (payload: INotification) => {
-        notifications.push(payload);
-        const newNotifications = [...notifications, payload].slice(0, -1);
+        // notifications.push(payload);
+        const newNotifications = [...notifications, payload];
         setNotifications(newNotifications);
     };
 

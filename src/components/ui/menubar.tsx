@@ -17,9 +17,10 @@ const MenubarRadioGroup = MenubarPrimitive.RadioGroup;
 const Menubar = React.forwardRef<
   React.ElementRef<typeof MenubarPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof MenubarPrimitive.Root>
->(({ className, ...props }, ref) => (
+>(({ className, onValueChange, ...props }, ref) => (
     <MenubarPrimitive.Root
         ref={ref}
+        onValueChange={onValueChange}
         className={cn(
             'flex h-10 items-center space-x-1 rounded-md border bg-background p-1',
             className

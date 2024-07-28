@@ -12,7 +12,7 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-    const { setOnlineUsers, setPlayerInfo, setChessGames, playerInfo, updateNotifications } = useUsers();
+    const { setOnlineUsers, setPlayerInfo, setChessGames, playerInfo, setNotifications } = useUsers();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     // const [progress, setProgress] = useState(0);
 
@@ -24,6 +24,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
             .then(({ data }) => {
                 localStorage.setItem('@UserInfo', JSON.stringify(data.user));
                 setPlayerInfo(data.user);
+                setNotifications(data.user.notifications);
                 setChessGames(data.chessGames);
                 setIsAuthenticated(true);
                 socket.emit('UserConnected', data.user);
@@ -51,6 +52,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
                     .then(({ data }) => {
                         localStorage.setItem('@UserInfo', JSON.stringify(data.user));
                         setPlayerInfo(data.user);
+                        setNotifications(data.user.notifications);
                         setChessGames(data.chessGames);
                         socket.emit('UserConnected', data.user);
                     })
@@ -65,10 +67,19 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
                 socket.emit('UserConnected', JSON.parse(localStorage.getItem('@UserInfo')));
             }
         });
-        socket.on('sendNotification', (payload: { targetUserId: string, message: string, createdAt: string, username: string, roomId: string }) => {
+        socket.on('sendNotification', (payload: { targetUserId: string, message: string, createdAt: string, username: string, roomId: string, readMessageAt: string, }) => {
             const playerId = localStorage.getItem('@UserId') || playerInfo.id;
             if (payload.targetUserId === playerId) {
-                updateNotifications(payload);
+                checkToken()
+                    .then(({ data }) => {
+                        localStorage.setItem('@UserInfo', JSON.stringify(data.user));
+                        setPlayerInfo(data.user);
+                        setNotifications(data.user.notifications);
+                    })
+                    .catch(() => {
+                        setIsAuthenticated(false);
+                        logout();
+                    });
             }
         });
 
