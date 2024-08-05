@@ -30,7 +30,7 @@ import { ReloadIcon, ChatBubbleIcon } from '@radix-ui/react-icons';
 import { IChessGames } from '@/types/chess-game.types';
 import { IUserInfo } from '@/types/users.types';
 import { formatDateTime } from '@/utils';
-import NewNotification from '@/assets/sound/new-notification.mp3';
+// import NewNotification from '@/assets/sound/new-notification.mp3';
 import {
     Dialog,
     DialogClose,
@@ -135,6 +135,7 @@ const Room = ()=> {
             toast.success('Game started');
 
             updateChessGamesStatus(STATUS_GAME_STARTED);
+            chessBoardRoomsInstances[roomId].startGame();
         }).finally(() => {
             setLoadingStartMatchRequestEvent(false);
         });
@@ -149,6 +150,7 @@ const Room = ()=> {
             toast.success('Chess Request Made');
 
             updateChessGamesStatus(STATUS_MATCH_REQUEST_MADE_BY_ME);
+            chessBoardRoomsInstances[roomId].startGame();
         }).finally(() => {
             setLoadingMatchRequestEvent(false);
         });
@@ -162,6 +164,7 @@ const Room = ()=> {
             getRoomData();
 
             updateChessGamesStatus(STATUS_NO_MATCH_REQUEST);
+            chessBoardRoomsInstances[roomId].startGame();
         }).finally(() => {
             setLoadingDeclineEvent(false);
         });
@@ -180,6 +183,7 @@ const Room = ()=> {
             getRoomData();
 
             updateChessGamesStatus(STATUS_NO_MATCH_REQUEST);
+            chessBoardRoomsInstances[roomId].startGame();
         }).finally(() => {
             setLoadingDeclineEvent(false);
         });
@@ -245,8 +249,8 @@ const Room = ()=> {
         }
     };
 
-    if (!chessBoardRoomsInstances[roomId]) {
-        setChessBoardRoomsInstances({ ...chessBoardRoomsInstances, [roomId]: new ChessBoardClass(roomId) });
+    if (!chessBoardRoomsInstances[roomId] && playerColorSide) {
+        setChessBoardRoomsInstances({ ...chessBoardRoomsInstances, [roomId]: new ChessBoardClass(roomId, playerColorSide) });
     }
 
     // ============================================
@@ -257,7 +261,6 @@ const Room = ()=> {
             if (payload.username === username) {
                 const updatedChatMessages = { ...chatMessagesRooms, [roomId]: payload.chatMessages[payload.roomId]};
                 if (updatedChatMessages) {
-                    new Audio(NewNotification).play();
                     setChatMessagesRooms(updatedChatMessages);
                 }
             }
@@ -275,6 +278,7 @@ const Room = ()=> {
                     updateChessGamesStatus(STATUS_NO_MATCH_REQUEST);
                     setChessBoardRoomsInstances({ ...chessBoardRoomsInstances, [roomId]: new ChessBoardClass(roomId, playerColorSide) });
                     reloadPersonalInfo();
+                    chessBoardRoomsInstances[roomId].startGame();
                 });
             }
         });
@@ -404,7 +408,7 @@ const Room = ()=> {
                                                 </DialogFooter>
                                             </DialogContent>
                                         </Dialog>
-                                        {chessBoardRoomsInstances[roomId] && <ChessBoard chessPieceSide={playerColorSide} chessBoardInstance={chessBoardRoomsInstances[roomId]} playerIsOnline={playerIsOnline} />}
+                                        {chessBoardRoomsInstances[roomId] && <ChessBoard chessPieceSide={playerColorSide} chessBoardInstance={chessBoardRoomsInstances[roomId]} playerIsOnline={playerIsOnline} playerAdversaryId={playerAdversaryId} />}
                                     </ScrollArea>
                                 )}
                             </>

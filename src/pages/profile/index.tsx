@@ -35,6 +35,7 @@ const Profile = ()=> {
             const updatedProfile = await updateProfile(playerInfo.id, {
                 username,
                 profilePic,
+                password,
             });
             setPlayerInfo(updatedProfile.data);
             toast.success('Profile Updated');

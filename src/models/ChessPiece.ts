@@ -17,7 +17,7 @@ export default class ChessPiece {
     }
     l:number;
     c:number;
-    color:string;
+    color: 'white' | 'black';
     piece: PieceType;
     
     public setChessPiece (chessBoard: chessBoardArrayType, targetLine: number, targetColumn: number) {

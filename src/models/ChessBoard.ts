@@ -12,7 +12,7 @@ import YouLoseSoundEffect from '@/assets/sound/you_lose.wav';
 import YouWinSoundEffect from '@/assets/sound/victory.mp3';
 import DrawSoundEffect from '@/assets/sound/draw.wav';
 import { increaseDrawCounter, increaseLoseCounter, increaseWinCounter } from '@/api';
-import { chessBoardArrayType, pieceNamesType } from './types';
+import { chessBoardArrayType, colorType, pieceNamesType } from './types';
 import { toast } from 'react-toastify';
 import { socket } from '@/socket-client/socket';
 
@@ -360,6 +360,49 @@ export class ChessBoard {
         const checkMate = possibleResults.every(r => r);
 
         return checkMate;
+    }
+
+    public updateChessBoard(newBoard: ChessBoard): void {
+        this.turnOfPlay = newBoard.turnOfPlay;
+        this.checkMate = newBoard.checkMate;
+        this.blackPlayerOnCheck = newBoard.blackPlayerOnCheck;
+        this.whitePlayerOnCheck = newBoard.whitePlayerOnCheck;
+        this.deadPieces = newBoard.deadPieces;
+
+        newBoard.chessBoard.forEach((line, l) => 
+            line.map((square, c) => {
+                const newCurrentPieceName = square.currentPiece?.piece?.name;
+                
+                const newCurrentPieceColor: colorType = square.currentPiece?.color;
+
+                this.chessBoard[l][c] = { ...this.chessBoard[l][c], ...square };
+
+                this.chessBoard[l][c].currentPiece = null;
+
+                if (newCurrentPieceColor) {
+                    if (newCurrentPieceName === 'rook') {
+                        this.chessBoard[l][c].currentPiece = new ChessPiece(l, c, newCurrentPieceColor, new ChessPieceRook(newCurrentPieceColor));
+                    }
+                    if (newCurrentPieceName === 'bishop') {
+                        this.chessBoard[l][c].currentPiece = new ChessPiece(l, c, newCurrentPieceColor, new ChessPieceBishop(newCurrentPieceColor));
+                    }
+                    if (newCurrentPieceName === 'knight') {
+                        this.chessBoard[l][c].currentPiece = new ChessPiece(l, c, newCurrentPieceColor, new ChessPieceKnight(newCurrentPieceColor));
+                    }
+                    if (newCurrentPieceName === 'pawn') {
+                        this.chessBoard[l][c].currentPiece = new ChessPiece(l, c, newCurrentPieceColor, new ChessPiecePawn(newCurrentPieceColor));
+                    }
+                    if (newCurrentPieceName === 'queen') {
+                        this.chessBoard[l][c].currentPiece = new ChessPiece(l, c, newCurrentPieceColor, new ChessPieceQueen(newCurrentPieceColor));
+                    }
+                    if (newCurrentPieceName === 'king') {
+                        this.chessBoard[l][c].currentPiece = new ChessPiece(l, c, newCurrentPieceColor, new ChessPieceKing(newCurrentPieceColor));
+                    }
+                }
+            })
+        );
+
+        this.checkVerification(this.turnOfPlay);
     }
 
 }

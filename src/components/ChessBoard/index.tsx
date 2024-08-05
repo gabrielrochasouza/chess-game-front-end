@@ -13,6 +13,8 @@ import WhiteQueen from '@/assets/svg/white_queen.svg';
 import Draggable from 'react-draggable';
 import { socket } from '@/socket-client/socket';
 import { useParams } from 'react-router-dom';
+import { increaseWinCounter } from '@/api';
+import { toast } from 'react-toastify';
 
 interface IControlledPosition {
     x: number;
@@ -23,6 +25,7 @@ interface IChessBoardComponent {
     chessPieceSide: colorType,
     chessBoardInstance: ChessBoardClass,
     playerIsOnline: boolean,
+    playerAdversaryId: string,
 }
 
 interface Payload {
@@ -34,7 +37,7 @@ interface Payload {
     userId: string,
 }
 
-function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline }: IChessBoardComponent) {
+function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline, playerAdversaryId }: IChessBoardComponent) {
     const {
         chessBoard,
         turnOfPlay,
@@ -49,6 +52,7 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline }: IChe
     const [constrolledPosition] = useState<IControlledPosition[][]>(cPosition as IControlledPosition[][]);
     const forceUpdate = useCallback(() => updateState({} as undefined), []);
     const { roomId } = useParams();
+    const [timeCounter, setTimeCounter] = useState(20);
 
     const movePieceOfAdversary = ({
         selectedLine, selectedColumn, targetLine, targetColumn, chessRoomId,
@@ -60,6 +64,7 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline }: IChe
         }
     };
     useEffect(() => {
+        chessBoardInstance.playerSide = chessPieceSide;
         socket.on('movePiece', (payload: Payload) => {
             movePieceOfAdversary(payload);
         });
@@ -71,9 +76,20 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline }: IChe
 
     useEffect(() => {
         if (!playerIsOnline) {
-            chessBoardInstance.startGame();
+            setTimeout(() => {
+                if (timeCounter - 1 >= 0) {
+                    setTimeCounter(timeCounter - 1);
+                } else {
+                    toast.success('You won the match!');
+                    increaseWinCounter();
+                    socket.emit('player-gave-up', { userId: playerAdversaryId });
+                    socket.emit('update-room', { roomId });
+                }
+            }, 1000);
+        } else {
+            setTimeCounter(20);
         }
-    }, [playerIsOnline]);
+    }, [playerIsOnline, timeCounter]);
 
     const clickOnCellHandler = (targetLine: number, targetColumn: number) => {
         if (!checkMate && chessPieceSide === turnOfPlay) {
@@ -188,7 +204,7 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline }: IChe
                 ))}
                 {!playerIsOnline && (
                     <div className='absolute w-full h-full top-0 left-0 flex justify-center items-center z-10 bg-stone-950/[.5]'>
-                    Player is offline...
+                    Player is offline... {timeCounter}s
                     </div>
                 )}
             </div>
