@@ -119,21 +119,24 @@ export const readAllMessages = async (userId: string) => {
     });
 };
 
-export const increaseWinCounter = async (userId: string) => {
+export const increaseWinCounter = async () => {
+    const userId = localStorage.getItem('@UserId');
     const token = localStorage.getItem('@Token');
     return api.patch(`users/${userId}/win`, {}, {
         headers: { authorization: `Bearer ${token}` }
     });
 };
 
-export const increaseLoseCounter = async (userId: string) => {
+export const increaseLoseCounter = async () => {
+    const userId = localStorage.getItem('@UserId');
     const token = localStorage.getItem('@Token');
     return api.patch(`users/${userId}/lose`, {}, {
         headers: { authorization: `Bearer ${token}` }
     });
 };
 
-export const increaseDrawCounter = async (userId: string) => {
+export const increaseDrawCounter = async () => {
+    const userId = localStorage.getItem('@UserId');
     const token = localStorage.getItem('@Token');
     return api.patch(`users/${userId}/draw`, {}, {
         headers: { authorization: `Bearer ${token}` }

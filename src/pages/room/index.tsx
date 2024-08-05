@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, SendHorizonal } from 'lucide-react';
 import { useUsers } from '@/provider/users';
-import { declineRequest, getRoomInfo, sendChessMatchRequest, startMatch } from '@/api';
+import { declineRequest, getRoomInfo, increaseLoseCounter, sendChessMatchRequest, startMatch } from '@/api';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChessBoard as ChessBoardClass } from '@/models/ChessBoard';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +30,17 @@ import { ReloadIcon, ChatBubbleIcon } from '@radix-ui/react-icons';
 import { IChessGames } from '@/types/chess-game.types';
 import { IUserInfo } from '@/types/users.types';
 import { formatDateTime } from '@/utils';
+import NewNotification from '@/assets/sound/new-notification.mp3';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
 
 
 const STATUS_NO_MATCH_REQUEST = 0;
@@ -53,6 +64,7 @@ const Room = ()=> {
         setChatMessagesRooms,
         chessGames,
         setChessGames,
+        reloadPersonalInfo,
     } = useUsers();
     
     // ============================================
@@ -64,7 +76,7 @@ const Room = ()=> {
     // UseState variables
     // ============================================
     const [message, setMessage] = useState<string>('');
-    const [playerAdversary, setPlayerInfo] = useState<IUserInfo>({} as IUserInfo);
+    const [playerAdversary, setPlayerAdversary] = useState<IUserInfo>({} as IUserInfo);
     const [playerColorSide, setPlayerColorSide] = useState<colorType>();
     const [progress, setProgress] = useState(40);
     const [loaded, setLoaded] = useState(false);
@@ -91,8 +103,11 @@ const Room = ()=> {
             setLoaded(false);
             setProgress(60);
             setChatMessagesRooms({ ...chatMessagesRooms, [roomId]: JSON.parse(data.chatMessages)});
-            setPlayerColorSide(data.whitePieceUser === playerInfo.id ? 'white' : 'black');
-            setPlayerInfo(username === data.user1.username ? data.user1 : data.user2);
+
+            const colorSide = data.whitePieceUser === playerInfo.id ? 'white' : 'black';
+            setPlayerColorSide(colorSide);
+
+            setPlayerAdversary(username === data.user1.username ? data.user1 : data.user2);
             
             updateRoomStatus(data);
 
@@ -112,6 +127,10 @@ const Room = ()=> {
         startMatch(roomId).then(({data}: {data: IChessGames}) => {
             setGameStatus(STATUS_GAME_STARTED);
             setPlayerColorSide(data.whitePieceUser === playerInfo.id ? 'white' : 'black');
+
+            const colorSide = data.whitePieceUser === playerInfo.id ? 'white' : 'black';
+            setPlayerColorSide(colorSide);
+
             socket.emit('reloadInfo', { userId: playerAdversary.id, username: personalUsername, status: STATUS_GAME_STARTED, roomId });
             toast.success('Game started');
 
@@ -138,6 +157,24 @@ const Room = ()=> {
     const handleDecline = () => {
         setLoadingDeclineEvent(true);
         declineRequest(roomId).then(() => {
+            socket.emit('reloadInfo', { userId: playerAdversary.id, username: personalUsername, status: STATUS_NO_MATCH_REQUEST, roomId });
+            setGameStatus(STATUS_NO_MATCH_REQUEST);
+            getRoomData();
+
+            updateChessGamesStatus(STATUS_NO_MATCH_REQUEST);
+        }).finally(() => {
+            setLoadingDeclineEvent(false);
+        });
+    };
+
+    const handleEndGame = () => {
+        setLoadingDeclineEvent(true);
+        declineRequest(roomId).then(async () => {
+            if (playerIsOnline) {
+                await increaseLoseCounter();
+                toast.error('You gave up');
+                socket.emit('player-gave-up', { userId: playerAdversaryId });
+            }
             socket.emit('reloadInfo', { userId: playerAdversary.id, username: personalUsername, status: STATUS_NO_MATCH_REQUEST, roomId });
             setGameStatus(STATUS_NO_MATCH_REQUEST);
             getRoomData();
@@ -209,7 +246,7 @@ const Room = ()=> {
     };
 
     if (!chessBoardRoomsInstances[roomId]) {
-        setChessBoardRoomsInstances({ ...chessBoardRoomsInstances, [roomId]: new ChessBoardClass() });
+        setChessBoardRoomsInstances({ ...chessBoardRoomsInstances, [roomId]: new ChessBoardClass(roomId) });
     }
 
     // ============================================
@@ -220,6 +257,7 @@ const Room = ()=> {
             if (payload.username === username) {
                 const updatedChatMessages = { ...chatMessagesRooms, [roomId]: payload.chatMessages[payload.roomId]};
                 if (updatedChatMessages) {
+                    new Audio(NewNotification).play();
                     setChatMessagesRooms(updatedChatMessages);
                 }
             }
@@ -228,6 +266,16 @@ const Room = ()=> {
             const playerId = localStorage.getItem('@UserId') || playerInfo.id;
             if (payload.userId === playerId) {
                 getRoomData();
+            }
+        });
+        socket.on('update-room', (payload: { roomId: string, result: number }) => {
+            if (payload.roomId === roomId) {
+                declineRequest(roomId).then(() => {
+                    setGameStatus(STATUS_NO_MATCH_REQUEST);
+                    updateChessGamesStatus(STATUS_NO_MATCH_REQUEST);
+                    setChessBoardRoomsInstances({ ...chessBoardRoomsInstances, [roomId]: new ChessBoardClass(roomId, playerColorSide) });
+                    reloadPersonalInfo();
+                });
             }
         });
 
@@ -242,6 +290,7 @@ const Room = ()=> {
         return () => {
             socket.off('chatMessage');
             socket.off('reloadInfo');
+            socket.off('update-room');
         };
     }, [roomId, username]);
 
@@ -331,9 +380,44 @@ const Room = ()=> {
                                 )}
                                 {gameStatus === STATUS_GAME_STARTED && (
                                     <div className='p-0 mt-8'>
-                                        <Button variant='destructive' className='ml-0' disabled={loadingDeclineEvent} onClick={() => handleDecline()}>
-                                            {loadingDeclineEvent && <ReloadIcon className='mr-2 animate-spin' />} Give Up
-                                        </Button>
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button 
+                                                    variant='destructive' 
+                                                    className='ml-0' 
+                                                    disabled={loadingDeclineEvent} 
+                                                    // onClick={() => handleEndGame()}
+                                                >
+                                                    {loadingDeclineEvent && <ReloadIcon className='mr-2 animate-spin' />} { playerIsOnline ? 'Give Up' : 'End Game' }
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent className='sm:max-w-[425px]'>
+                                                <DialogHeader>
+                                                    <DialogTitle className='text-xxl'>{ playerIsOnline ? 'Give Up' : 'End Game' }</DialogTitle>
+                                                    <DialogDescription>
+                                                    You will end the match
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                                <div className='py-4'>
+                                                    Are you sure you want to continue?
+                                                </div>
+                                                <DialogFooter>
+                                                    <DialogClose asChild>
+                                                        <>
+                                                            <Button type='button' variant='default'>Cancel</Button>
+                                                            <Button 
+                                                                variant='destructive' 
+                                                                className='ml-0' 
+                                                                disabled={loadingDeclineEvent} 
+                                                                onClick={() => handleEndGame()}
+                                                            >
+                                                                {loadingDeclineEvent && <ReloadIcon className='mr-2 animate-spin' />} { playerIsOnline ? 'Give Up' : 'End Game' }
+                                                            </Button>
+                                                        </>
+                                                    </DialogClose>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                        </Dialog>
                                         {chessBoardRoomsInstances[roomId] && <ChessBoard chessPieceSide={playerColorSide} chessBoardInstance={chessBoardRoomsInstances[roomId]} playerIsOnline={playerIsOnline} />}
                                     </div>
                                 )}

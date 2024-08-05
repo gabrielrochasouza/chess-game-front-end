@@ -1,17 +1,17 @@
 import { useState, useCallback, MouseEvent, useEffect } from 'react';
-import { ChessBoard as ChessBoardClass } from '../../models/ChessBoard';
+import { ChessBoard as ChessBoardClass } from '@/models/ChessBoard';
 import './index.css';
-import { chessBoardType, colorType, pieceNamesType } from '../../models/types';
-import BlackBishop from '../../assets/svg/black_bishop.svg';
-import BlackRook from '../../assets/svg/black_rook.svg';
-import BlackKnight from '../../assets/svg/black_knight.svg';
-import BlackQueen from '../../assets/svg/black_queen.svg';
-import WhiteBishop from '../../assets/svg/white_bishop.svg';
-import WhiteRook from '../../assets/svg/white_rook.svg';
-import WhiteKnight from '../../assets/svg/white_knight.svg';
-import WhiteQueen from '../../assets/svg/white_queen.svg';
+import { chessBoardType, colorType, pieceNamesType } from '@/models/types';
+import BlackBishop from '@/assets/svg/black_bishop.svg';
+import BlackRook from '@/assets/svg/black_rook.svg';
+import BlackKnight from '@/assets/svg/black_knight.svg';
+import BlackQueen from '@/assets/svg/black_queen.svg';
+import WhiteBishop from '@/assets/svg/white_bishop.svg';
+import WhiteRook from '@/assets/svg/white_rook.svg';
+import WhiteKnight from '@/assets/svg/white_knight.svg';
+import WhiteQueen from '@/assets/svg/white_queen.svg';
 import Draggable from 'react-draggable';
-import { socket } from '../../socket-client/socket';
+import { socket } from '@/socket-client/socket';
 import { useParams } from 'react-router-dom';
 
 interface IControlledPosition {
@@ -99,10 +99,10 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline }: IChe
         }
     };
 
-    const restartGameHandler = () => {
-        chessBoardInstance.startGame();
-        forceUpdate();
-    };
+    // const restartGameHandler = () => {
+    //     chessBoardInstance.startGame();
+    //     forceUpdate();
+    // };
 
     const pieceSelectionHandler = (pieceName: pieceNamesType) => {
         chessBoardInstance.setSelectedPieceInPawnPlace(pieceName);
@@ -205,7 +205,7 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline }: IChe
                 {(!checkMate && whitePlayerOnCheck) && <p>Peças brancas estão em check!</p>}
                 {(checkMate && turnOfPlay === 'white') && <p>Peças pretas ganharam!</p>}
                 {(checkMate && turnOfPlay === 'black') && <p>Peças brancas ganharam!</p>}
-                {!chessPieceSide && <button onClick={restartGameHandler}>Restart Game</button>}
+                {/* {!chessPieceSide && <button onClick={restartGameHandler}>Restart Game</button>} */}
             </div>
             {chessBoardInstance.pawnReachedEndOfChessBoard && (
                 <div className='select-piece'>

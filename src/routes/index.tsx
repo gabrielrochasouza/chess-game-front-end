@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { Navigate, createBrowserRouter } from 'react-router-dom';
 import Dashboard from '../pages/dashboard';
 import Room from '../pages/room';
 import Login from '@/pages/login';
@@ -43,7 +43,7 @@ const router = createBrowserRouter([
         path: '/*',
         element: (
             <PrivateRoute>
-                <Dashboard />
+                <Navigate to={'/dashboard'} />
             </PrivateRoute>
         ),
     }

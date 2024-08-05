@@ -7,14 +7,20 @@ import ChessPieceRook from './ChessPieceRook';
 import ChessPieceQueen from './ChessPieceQueen';
 import PieceMoveSoundEffect from '../assets/sound/piece_move_sound.mp3';
 import ChessCheckSoundEffect from '../assets/sound/check_sound.wav';
-import ChessCheckMateSoundEffect from '../assets/sound/check_mate_sound.wav';
-
+// import ChessCheckMateSoundEffect from '../assets/sound/check_mate_sound.wav';
+import YouLoseSoundEffect from '@/assets/sound/you_lose.wav';
+import YouWinSoundEffect from '@/assets/sound/victory.mp3';
+import DrawSoundEffect from '@/assets/sound/draw.wav';
+import { increaseDrawCounter, increaseLoseCounter, increaseWinCounter } from '@/api';
 import { chessBoardArrayType, pieceNamesType } from './types';
 import { toast } from 'react-toastify';
+import { socket } from '@/socket-client/socket';
 
 export class ChessBoard {
-    constructor() {
+    constructor(roomId: string, playerSide?: 'black' | 'white') {
         this.startGame();
+        this.roomId = roomId;
+        this.playerSide = playerSide;
     }
     public chessBoard: chessBoardArrayType;
     public turnOfPlay:'black'|'white' = 'white';
@@ -25,6 +31,9 @@ export class ChessBoard {
     public whitePlayerOnCheck: boolean = false;
     public blackPlayerOnCheck: boolean = false;
     public checkMate: boolean = false;
+    public draw: boolean = false;
+    public playerSide: 'black' | 'white' = null;
+    public roomId: string = null;
 
     private whiteKingPiece: ChessPiece;
     private blackKingPiece: ChessPiece;
@@ -124,6 +133,7 @@ export class ChessBoard {
 
             this.setMarkToPreviousSquareMove(targetLine, targetColumn);
         }
+        return true;
     }
 
     private checkIfPawnReachedEndOfChessBoard (currentPiece: ChessPiece, targetLine: number, targetColumn: number) {
@@ -145,20 +155,48 @@ export class ChessBoard {
         this.chessBoard[targetLine][targetColumn].isPreviousTargetSquareMove = true;
     }
 
-    public checkVerification (turnOfPlay: 'white' | 'black') {
+    public async checkVerification (turnOfPlay: 'white' | 'black') {
         const nextTurn = turnOfPlay === 'white' ? 'black' : 'white';
         const playerOnCheck = this.verifyIfPlayerIsOnCheck(turnOfPlay);
         this.blackPlayerOnCheck = playerOnCheck && nextTurn === 'black';
         this.whitePlayerOnCheck = playerOnCheck && nextTurn === 'white';
         this.selectedPiece = null;
+        const nextMoveIsAlwaysCheck = this.verifyCheckMate(nextTurn);
         new Audio(PieceMoveSoundEffect).play();
         
-        if (this.verifyCheckMate(nextTurn)) {
-            new Audio(ChessCheckMateSoundEffect).play();
-            toast.success(`Jogador das peças ${nextTurn === 'white' ? 'Pretas' : 'Brancas'} ganhou!!`);
+        if (playerOnCheck && nextMoveIsAlwaysCheck) {
+            const winner = nextTurn === 'white' ? 'black' : 'white';
+
+            if (this.playerSide === winner) {
+                new Audio(YouWinSoundEffect).play();
+                await increaseWinCounter();
+                toast.success('You Win!');
+            }
+
+            if (this.playerSide !== winner) {
+                new Audio(YouLoseSoundEffect).play();
+                await increaseLoseCounter();
+                toast.error('You Lose!');
+            }
+                
+            socket.emit('update-room', { roomId: this.roomId });
             this.checkMate = true;
-        } else if (playerOnCheck) {
+            return;
+        }
+
+        if (nextMoveIsAlwaysCheck) {
+            new Audio(DrawSoundEffect).play();
+            await increaseDrawCounter();
+            socket.emit('update-room', { roomId: this.roomId });
+            
+            toast.success('Its a draw');
+            this.draw = true;
+            return;
+        }
+
+        if (playerOnCheck) {
             new Audio(ChessCheckSoundEffect).play();
+            return;
         }
     }
 
@@ -217,6 +255,7 @@ export class ChessBoard {
         this.mode = 'selectPiece';
         this.turnOfPlay = 'white';
         this.checkMate = false;
+        this.draw = false;
         this.whitePlayerOnCheck = false;
         this.blackPlayerOnCheck = false;
         this.pawnReachedEndOfChessBoard = false;
@@ -324,7 +363,3 @@ export class ChessBoard {
     }
 
 }
-
-const chessBoard = new ChessBoard();
-
-export default chessBoard;

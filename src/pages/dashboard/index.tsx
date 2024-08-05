@@ -20,6 +20,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Input } from '@/components/ui/input';
 import { Pagination, PaginationContent, PaginationItem } from '@/components/ui/pagination';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { formatDateTime } from '@/utils';
 
 const Dashboard = ()=> {
     const { users, onlineUsers, playerInfo, setUsers, setPlayerInfo, setChessGames } = useUsers();
@@ -33,12 +34,24 @@ const Dashboard = ()=> {
     const navigate = useNavigate();
 
     useEffect(() => {
+        socket.on('new-user-registered', () => {
+            getAllUsers();
+        });
+
+        getAllUsers();
+
+        return () => {
+            socket.off('new-user-registered');
+        };
+    }, []);
+
+    const getAllUsers = () => {
         getUsers().then(({data}) => {
             setUsers(data);
         }).finally(() => {
             setLoaded(true);
         });
-    }, []);
+    };
 
     const createChessMatchRequest = async (userId: string) => {
         createChessGame(userId).then(({data}) => {
@@ -194,7 +207,7 @@ const Dashboard = ()=> {
                                         <TableCell>{user.wins}</TableCell>
                                         <TableCell>{user.loses}</TableCell>
                                         <TableCell className='hidden lg:table-cell'>{user.draws}</TableCell>
-                                        <TableCell className='hidden lg:table-cell'>{new Date(user.createdAt).toLocaleDateString()} {new Date(user.createdAt).toLocaleTimeString()}</TableCell>
+                                        <TableCell className='hidden lg:table-cell'>{formatDateTime(user.createdAt)}</TableCell>
                                         <TableCell className='w-2'>
                                             <TooltipProvider>
                                                 <Tooltip>

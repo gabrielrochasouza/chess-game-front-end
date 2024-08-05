@@ -8,6 +8,7 @@ import  React, { useState } from 'react';
 import { executeLogin, registerUser } from '@/api';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import ChessVideo from '@/assets/video/chess-video.mp4';
+import { socket } from '@/socket-client/socket';
 
 const Register = ()=> {
     const [username, setUsername] = useState<string>('');
@@ -30,6 +31,7 @@ const Register = ()=> {
 
         if (user) {
             const loginResponse = await executeLogin({ username, password });
+            socket.emit('new-user-registered');
             if (loginResponse) {
                 navigate('/');
             }

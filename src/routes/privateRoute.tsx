@@ -5,7 +5,7 @@ import { logout } from '@/utils';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-// import LoadingBar from 'react-top-loading-bar';
+import WhiteKnight from '@/assets/svg/white_knight.svg';
 
 interface PrivateRouteProps {
   children: ReactNode;
@@ -14,12 +14,10 @@ interface PrivateRouteProps {
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
     const { setOnlineUsers, setPlayerInfo, setChessGames, playerInfo, setNotifications } = useUsers();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    // const [progress, setProgress] = useState(0);
 
     const expiresIn = localStorage.getItem('@ExpiresIn') ? new Date(localStorage.getItem('@ExpiresIn')).valueOf() : null;
 
     const loadPersonalInfo = ()=> {
-        // setProgress(30);
         checkToken()
             .then(({ data }) => {
                 localStorage.setItem('@UserInfo', JSON.stringify(data.user));
@@ -32,9 +30,6 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
             .catch(() => {
                 setIsAuthenticated(false);
                 logout();
-            })
-            .finally(() => {
-                // setProgress(100);
             });
     };
 
@@ -88,7 +83,6 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
         }
 
         return () => {
-            socket.off('movePiece');
             socket.off('initialEvent');
             socket.off('reloadGlobal');
             socket.off('handleDisconnectUser');
@@ -108,14 +102,16 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
         return <Navigate to='login' />;
     }
 
-    if (localStorage.getItem('@Token') && isAuthenticated) {
-        return (
-            <>
-                {/* <LoadingBar color='#f11946' progress={progress} onLoaderFinished={() => setProgress(0)} /> */}
-                {children}
-            </>
-        ); 
-    }
+    return localStorage.getItem('@Token') && isAuthenticated ? <>{children}</> : (
+        <div className='h-screen w-full flex justify-center items-center text-2xl'>
+            <div className='text-center'>
+                <img className='w-20 h-20 mb-4' src={WhiteKnight} />
+                <div>
+                    Loading...
+                </div>
+            </div>
+        </div>
+    ); 
 };
 
 export default PrivateRoute;

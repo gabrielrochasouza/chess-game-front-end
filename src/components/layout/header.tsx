@@ -13,7 +13,7 @@ import { useUsers } from '@/provider/users';
 import { formatDateTime, logout } from '@/utils';
 import { HamburgerMenuIcon, BellIcon } from '@radix-ui/react-icons';
 import { Button } from '@/components/ui/button';
-import { checkToken, readAllMessages } from '@/api';
+import { readAllMessages } from '@/api';
 
 
 interface INotification {
@@ -26,7 +26,7 @@ interface INotification {
 
 
 export default function Header() {
-    const { playerInfo, menuOpened, setMenuOpened, notifications, setNotifications, setChessGames } = useUsers();
+    const { playerInfo, menuOpened, setMenuOpened, notifications, setNotifications } = useUsers();
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -49,14 +49,8 @@ export default function Header() {
 
     const readMessages = () => {
         const userId = localStorage.getItem('@UserId') || playerInfo.id;
-        readAllMessages(userId).then(() => {
-            checkToken()
-                .then(({ data }) => {
-                    localStorage.setItem('@UserInfo', JSON.stringify(data.user));
-                    setNotifications(data.user.notifications);
-                    setChessGames(data.chessGames);
-                });
-        });
+        setNotifications(notifications.map(notification => notification.readMessageAt ? notification : ({ ...notification, readMessageAt: new Date().toString() })));
+        readAllMessages(userId);
     };
 
     return (
@@ -81,7 +75,7 @@ export default function Header() {
                                     ) : (<></>)}
                                 </Button>
                             </MenubarTrigger>
-                            <MenubarContent className='pb-1 mr-4 min-w-80 max-w-80' onChange={() => console.log('teste')}>
+                            <MenubarContent className='pb-1 mr-4 min-w-80 max-w-80'>
                                 {notifications.length ? (
                                     <>
                                         <MenubarItem className='text-lg'>Notifications</MenubarItem>
@@ -89,7 +83,7 @@ export default function Header() {
                                         <div className='overflow-auto max-h-80 max-w-80 px-0'>
                                             {notifications.slice(0).reverse().map((notification, index) => (
                                                 <MenubarItem key={index} className='pt-4 pb-10 px-1 relative' onClick={() => handleNavigateToPage(notification)}>
-                                                    <p className='line-clamp-2 max-w-full'>{!notification.readMessageAt && '🟡 '} {notification.message}</p>
+                                                    <p className='line-clamp-2 max-w-full'>{!notification.readMessageAt ? '🟡 ' : '⚪ '} {notification.message}</p>
                                                     <span className='absolute right-2 bottom-0 text-[11px] text-slate-400'>{formatDateTime(notification.createdAt)}</span>
                                                 </MenubarItem>
                                             ))}

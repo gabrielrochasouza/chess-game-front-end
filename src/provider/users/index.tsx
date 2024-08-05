@@ -1,6 +1,7 @@
-import { saveChat } from '@/api';
+import { checkToken, saveChat } from '@/api';
 import { ChessBoard } from '@/models/ChessBoard';
 import { socket } from '@/socket-client/socket';
+import { logout } from '@/utils';
 import { ReactNode,createContext,useContext,useState } from 'react';
 
 interface ProviderProps {
@@ -57,6 +58,7 @@ interface ContextProps{
     notifications: INotification[],
     setNotifications: (notifications: INotification[]) => void,
     updateNotifications: (notification: INotification) => void,
+    reloadPersonalInfo: () => void,
 }
 
 interface IChessBoardRoomsInstances {
@@ -95,7 +97,6 @@ export const UsersProvider = ({children}:ProviderProps)=>{
     const [notifications, setNotifications] = useState<INotification[]>([] as INotification[]);
 
     const updateNotifications = (payload: INotification) => {
-        // notifications.push(payload);
         const newNotifications = [...notifications, payload];
         setNotifications(newNotifications);
     };
@@ -115,7 +116,20 @@ export const UsersProvider = ({children}:ProviderProps)=>{
             setChatMessagesRooms(updatedMessages);
         }
         socket.emit('sendChatMessage', { messages: updatedMessages[roomId], roomId, username: playerInfo.username, targetUserId });
-    }; 
+    };
+
+    const reloadPersonalInfo = ()=> {
+        checkToken()
+            .then(({ data }) => {
+                localStorage.setItem('@UserInfo', JSON.stringify(data.user));
+                setPlayerInfo(data.user);
+                setNotifications(data.user.notifications);
+                setChessGames(data.chessGames);
+            })
+            .catch(() => {
+                logout();
+            });
+    };
 
     return(
         <UsersContext.Provider value={{
@@ -137,6 +151,7 @@ export const UsersProvider = ({children}:ProviderProps)=>{
             notifications,
             setNotifications,
             updateNotifications,
+            reloadPersonalInfo,
         }}>
             {children}
         </UsersContext.Provider>
