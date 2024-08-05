@@ -89,6 +89,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
         socket.on('movePieceGlobal', ({ selectedLine, selectedColumn, targetLine, targetColumn, chessRoomId }: IMovePieceGlobal) => {
             chessBoardRoomsInstances[chessRoomId].selectPiece(selectedLine, selectedColumn);
             chessBoardRoomsInstances[chessRoomId].movePiece(targetLine, targetColumn);
+            setChessBoardRoomsInstances({ ...chessBoardRoomsInstances, [chessRoomId]: chessBoardRoomsInstances[chessRoomId] });
         });
 
         return () => {

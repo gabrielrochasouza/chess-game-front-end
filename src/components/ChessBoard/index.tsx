@@ -15,6 +15,7 @@ import { socket } from '@/socket-client/socket';
 import { useParams } from 'react-router-dom';
 import { increaseWinCounter } from '@/api';
 import { toast } from 'react-toastify';
+import { useUsers } from '@/provider/users';
 
 interface IControlledPosition {
     x: number;
@@ -53,6 +54,7 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline, player
     const forceUpdate = useCallback(() => updateState({} as undefined), []);
     const { roomId } = useParams();
     const [timeCounter, setTimeCounter] = useState(20);
+    const { setChessBoardRoomsInstances, chessBoardRoomsInstances } = useUsers();
 
     const movePieceOfAdversary = ({
         selectedLine, selectedColumn, targetLine, targetColumn, chessRoomId,
@@ -60,6 +62,7 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline, player
         if (chessPieceSide !== turnOfPlay && chessRoomId === roomId) {
             chessBoardInstance.selectPiece(selectedLine, selectedColumn);
             chessBoardInstance.movePiece(targetLine, targetColumn);
+            setChessBoardRoomsInstances({ ...chessBoardRoomsInstances, [roomId]: chessBoardInstance });
             forceUpdate();
         }
     };

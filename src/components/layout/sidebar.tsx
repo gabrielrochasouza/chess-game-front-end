@@ -5,6 +5,7 @@ import { Link, useParams } from 'react-router-dom';
 import { MenubarSeparator } from '@/components/ui/menubar';
 import { useUsers } from '@/provider/users';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { Avatar, AvatarFallback } from '../ui/avatar';
 
 
 interface NavItem {
@@ -39,7 +40,7 @@ const navItems: NavItem[] = [
 ];
 
 export default function Sidebar() {
-    const { chessGames, playerInfo, onlineUsers, menuOpened } = useUsers();
+    const { chessGames, playerInfo, onlineUsers, menuOpened, chessBoardRoomsInstances } = useUsers();
     const { username } = useParams();
 
     const onlineUsersIds: { [key: string]: boolean } = {};
@@ -48,13 +49,21 @@ export default function Sidebar() {
         onlineUsersIds[user] = true;
     });
 
+    const stringToColor = (str: string) => {
+        let hex = '';
+        for(let i=0;i<str.length;i++) {
+            hex += ''+str.charCodeAt(i).toString(16);
+        }
+        return hex;
+    };
+
     return (
         <nav
             className={cn('relative h-screen border-r pt-16 lg:block w-72 max-w-72 overflow-auto transition-all z-20 sidebarmenu')}
             style={{ maxWidth: menuOpened ? '230px' : '0px', left: '-1px' }}
         >
             <div className='space-y-4 py-4'>
-                <div className='px-3 py-2'>
+                <div className='pr-3 pl-1 py-2'>
                     <div className='space-y-1'>
                         <h2 className='mb-2 px-4 text-xl font-semibold tracking-tight'>
                         Overview
@@ -76,17 +85,42 @@ export default function Sidebar() {
                                         <TooltipProvider>
                                             <Tooltip>
                                                 <TooltipTrigger className='block w-full text-start'>
-                                                    <span
+                                                    <div
                                                         className={cn(
-                                                            'group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground truncate block'
+                                                            'group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground truncate gap-2'
                                                         )}
                                                         style={{ backgroundColor: (username === game.username1 || username === game.username2) && '#222' }}
                                                     >
-                                                        <span className={ game.gameStarted ? 'text-lime-400' : (game.matchRequestMade && 'text-teal-500') }>
-                                                            {playerInfo.username === game.username1 ? (onlineUsersIds[game.userId2] && '🟢 ') : (onlineUsersIds[game.userId1] && '🟢 ')}
-                                                            {playerInfo.username === game.username1 ? game.username2 : game.username1} {' '}
-                                                        </span>
-                                                    </span>
+                                                        <Avatar className='w-8 h-8 relative overflow-visible'>
+                                                            <AvatarFallback 
+                                                                style={{ 
+                                                                    backgroundColor: stringToColor(playerInfo.username === game.username1 ? game.username2[0] : game.username1[0]),
+                                                                    border: '1px solid #fff'
+                                                                }}
+                                                            >
+                                                                {playerInfo.username === game.username1 ? game.username2[0] : game.username1[0]}
+                                                            </AvatarFallback>
+                                                            {
+                                                                playerInfo.username === game.username1 ? 
+                                                                    (onlineUsersIds[game.userId2] && <div className='absolute bottom-0 right-0 w-3 h-3 rounded-full bg-lime-500'></div>) : 
+                                                                    (onlineUsersIds[game.userId1] && <div className='absolute bottom-0 right-0 w-3 h-3 rounded-full bg-lime-500'></div>)
+                                                            }
+                                                        </Avatar>
+                                                        <div>
+                                                            <div>
+                                                                {playerInfo.username === game.username1 ? game.username2 : game.username1} {' '}
+                                                            </div>
+                                                            <div className='text-[10px] p-0 m-0' style={{ lineHeight: '8px', fontWeight: '300' }}>
+                                                                { game.gameStarted ? 'Game Started' : (game.matchRequestMade && 'Match Request') }
+                                                                { (game.gameStarted && chessBoardRoomsInstances[game.id]?.turnOfPlay) &&
+                                                                    (chessBoardRoomsInstances[game.id] && chessBoardRoomsInstances[game.id]?.turnOfPlay === 'black' ? 
+                                                                        (game.blackPieceUser === playerInfo.id ? ' • Your Turn' : ' • Waiting') :
+                                                                        (game.whitePieceUser === playerInfo.id ? ' • Your Turn' : ' • Waiting')
+                                                                    )  
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </TooltipTrigger>
                                                 { (game.gameStarted || game.matchRequestMade) && (
                                                     <TooltipContent>
