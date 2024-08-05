@@ -81,7 +81,7 @@ const Dashboard = ()=> {
                 </h2>
             </div>
             {/* Cards Indicator */}
-            <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
+            <div className='grid gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-4'>
                 <Card>
                     <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                         <CardTitle className='text-sm font-medium'>Players Online</CardTitle>
@@ -149,7 +149,7 @@ const Dashboard = ()=> {
                 <Card>
                     <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                         <CardTitle className='text-sm font-medium'>
-                                        Number of draws
+                            Number of draws
                         </CardTitle>
                         <svg
                             xmlns='http://www.w3.org/2000/svg'
@@ -187,6 +187,7 @@ const Dashboard = ()=> {
                         </div>
                     </CardHeader>
                     <CardContent className='p-0'>
+                        {/* Left column table */}
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -230,7 +231,9 @@ const Dashboard = ()=> {
                                 ) } 
                             </TableBody>
                         </Table>
+                        {/* End of table */}
                         <Separator />
+                        {/* Paginator */}
                         <Pagination className='p-4 flex justify-between items-center w-full'>
                             <CardDescription>{currentPage + 1} of {totalOfPages} page(s)</CardDescription>
                             <div className='flex gap-2 items-center'>

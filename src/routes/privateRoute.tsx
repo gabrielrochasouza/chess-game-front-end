@@ -6,13 +6,23 @@ import React, { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import WhiteKnight from '@/assets/svg/white_knight.svg';
+import { ChessBoard } from '@/models/ChessBoard';
 
 interface PrivateRouteProps {
   children: ReactNode;
 }
 
+interface IMovePieceGlobal {
+    selectedLine: number,
+    selectedColumn: number,
+    targetLine: number,
+    targetColumn: number,
+    chessRoomId: string,
+    userId: string,
+}
+
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-    const { setOnlineUsers, setPlayerInfo, setChessGames, playerInfo, setNotifications } = useUsers();
+    const { setOnlineUsers, setPlayerInfo, setChessGames, playerInfo, setNotifications, chessGames, chessBoardRoomsInstances } = useUsers();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const expiresIn = localStorage.getItem('@ExpiresIn') ? new Date(localStorage.getItem('@ExpiresIn')).valueOf() : null;
@@ -77,6 +87,10 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
                     });
             }
         });
+        socket.on('movePieceGlobal', ({ selectedLine, selectedColumn, targetLine, targetColumn, chessRoomId }: IMovePieceGlobal) => {
+            chessBoardRoomsInstances[chessRoomId].selectPiece(selectedLine, selectedColumn);
+            chessBoardRoomsInstances[chessRoomId].movePiece(targetLine, targetColumn);
+        });
 
         if (!expiresIn || Date.now() < expiresIn) {
             loadPersonalInfo();
@@ -88,6 +102,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
             socket.off('handleDisconnectUser');
             socket.off('handleConnectUser');
             socket.off('sendNotification');
+            socket.off('movePieceGlobal');
         };
     }, []);
 
@@ -101,6 +116,14 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
         logout();
         return <Navigate to='login' />;
     }
+
+    chessGames.forEach(chessGame => {
+        if (chessGame.gameStarted && !chessBoardRoomsInstances[chessGame.id]) {
+            const userId = localStorage.getItem('@UserId');
+            const userColor = chessGame.blackPieceUser === userId ? 'black' : 'white';
+            chessBoardRoomsInstances[chessGame.id] = new ChessBoard(userColor);
+        }
+    });
 
     return localStorage.getItem('@Token') && isAuthenticated ? <>{children}</> : (
         <div className='h-screen w-full flex justify-center items-center text-2xl'>

@@ -317,7 +317,7 @@ const Room = ()=> {
                 >
                     <ResizablePanel defaultSize={50} className={showChat ? 'p-4 md:p-8 relative transition-all hide-column' : 'p-4 md:p-8 relative transition-all show-chat'}>
                         {/* ******************************* BreadCrumb ******************************* */}
-                        <Breadcrumb>
+                        <Breadcrumb className='mb-8'>
                             <BreadcrumbList>
                                 <BreadcrumbItem>
                                     <Link to={'/dashboard'}>Dashboard</Link>
@@ -343,7 +343,7 @@ const Room = ()=> {
                         {loaded ? (
                             <>
                                 {gameStatus === STATUS_NO_MATCH_REQUEST && (
-                                    <Card className='p-4 mt-8'>
+                                    <Card className='p-4 mt-0'>
                                         <CardHeader className='pl-0'>
                                             <CardTitle>Request a chess match with '{username}'</CardTitle>
                                             <CardDescription>{playerIsOnline ? 'Player is online available to play' : 'Player is not online available to play'}</CardDescription>
@@ -355,7 +355,7 @@ const Room = ()=> {
                                     </Card>
                                 )}
                                 {gameStatus === STATUS_MATCH_REQUEST_MADE_BY_ME && (
-                                    <Card className='p-4 mt-8'>
+                                    <Card className='p-4 mt-0'>
                                         <CardHeader className='pl-0'>
                                             <CardTitle>You made a request to '{username}'</CardTitle>
                                             <CardDescription>{playerIsOnline ? 'Player is online available to play' : 'Player is not online available to play'}</CardDescription>
@@ -363,7 +363,7 @@ const Room = ()=> {
                                     </Card>
                                 )}
                                 {gameStatus === STATUS_MATCH_REQUEST_MADE_BY_OPPONENT && (
-                                    <Card className='p-4 mt-8'>
+                                    <Card className='p-4 mt-0'>
                                         <CardHeader className='pl-0'>
                                             <CardTitle>The user '{username}' made a match request for you</CardTitle>
                                             <CardDescription>{playerIsOnline ? 'Player is online available to play' : 'Player is not online available to play'}</CardDescription>
@@ -379,52 +379,38 @@ const Room = ()=> {
                                     </Card>
                                 )}
                                 {gameStatus === STATUS_GAME_STARTED && (
-                                    <div className='p-0 mt-8'>
+                                    <ScrollArea className='p-0 mt-0 h-full w-full'>
                                         <Dialog>
                                             <DialogTrigger asChild>
-                                                <Button 
-                                                    variant='destructive' 
-                                                    className='ml-0' 
-                                                    disabled={loadingDeclineEvent} 
-                                                    // onClick={() => handleEndGame()}
-                                                >
+                                                <Button variant='destructive' className='ml-0' disabled={loadingDeclineEvent}>
                                                     {loadingDeclineEvent && <ReloadIcon className='mr-2 animate-spin' />} { playerIsOnline ? 'Give Up' : 'End Game' }
                                                 </Button>
                                             </DialogTrigger>
-                                            <DialogContent className='sm:max-w-[425px]'>
+                                            <DialogContent className='sm:max-w-[355px] w-80'>
                                                 <DialogHeader>
-                                                    <DialogTitle className='text-xxl'>{ playerIsOnline ? 'Give Up' : 'End Game' }</DialogTitle>
-                                                    <DialogDescription>
-                                                    You will end the match
-                                                    </DialogDescription>
+                                                    <DialogTitle className='text-2xl'>{ playerIsOnline ? 'Give Up' : 'End Game' }</DialogTitle>
+                                                    <DialogDescription>You will end the match</DialogDescription>
                                                 </DialogHeader>
-                                                <div className='py-4'>
-                                                    Are you sure you want to continue?
-                                                </div>
-                                                <DialogFooter>
+                                                <div className='py-4'>Are you sure you want to continue?</div>
+                                                <DialogFooter className='gap-2'>
                                                     <DialogClose asChild>
-                                                        <>
-                                                            <Button type='button' variant='default'>Cancel</Button>
-                                                            <Button 
-                                                                variant='destructive' 
-                                                                className='ml-0' 
-                                                                disabled={loadingDeclineEvent} 
-                                                                onClick={() => handleEndGame()}
-                                                            >
-                                                                {loadingDeclineEvent && <ReloadIcon className='mr-2 animate-spin' />} { playerIsOnline ? 'Give Up' : 'End Game' }
-                                                            </Button>
-                                                        </>
+                                                        <Button type='submit' variant='default'>Cancel</Button>
+                                                    </DialogClose>
+                                                    <DialogClose asChild>
+                                                        <Button variant='destructive' className='ml-0' disabled={loadingDeclineEvent} onClick={() => handleEndGame()}>
+                                                            {loadingDeclineEvent && <ReloadIcon className='mr-2 animate-spin' />} { playerIsOnline ? 'Give Up' : 'End Game' }
+                                                        </Button>
                                                     </DialogClose>
                                                 </DialogFooter>
                                             </DialogContent>
                                         </Dialog>
                                         {chessBoardRoomsInstances[roomId] && <ChessBoard chessPieceSide={playerColorSide} chessBoardInstance={chessBoardRoomsInstances[roomId]} playerIsOnline={playerIsOnline} />}
-                                    </div>
+                                    </ScrollArea>
                                 )}
                             </>
                         ) : (
                             // ******************************* Skeleton Loader *******************************
-                            <Card className='flex flex-col space-y-3 w-full mt-8 p-4 pt-10'>
+                            <Card className='flex flex-col space-y-3 w-full mt-0 p-4 pt-10'>
                                 <Skeleton className='h-[30px] w-80 rounded-xl' />
                                 <Skeleton className='h-[20px] w-full rounded-xl' />
                                 <div className='space-y-0 gap-4 flex items-center'>

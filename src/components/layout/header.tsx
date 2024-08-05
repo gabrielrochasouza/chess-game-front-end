@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/menubar';
 import { useUsers } from '@/provider/users';
 import { formatDateTime, logout } from '@/utils';
-import { HamburgerMenuIcon, BellIcon } from '@radix-ui/react-icons';
+import { HamburgerMenuIcon, BellIcon, GitHubLogoIcon } from '@radix-ui/react-icons';
 import { Button } from '@/components/ui/button';
 import { readAllMessages } from '@/api';
 
@@ -61,7 +61,10 @@ export default function Header() {
                         <HamburgerMenuIcon className='w-6 h-6' />
                     </Button>
                 </div>
-                <div className='lg:mr-4 flex gap-4 item-center'>
+                <div className='lg:mr-4 flex gap-2 item-center'>
+                    <Button variant='ghost' className='rounded-full w-12 h-12 p-0 m-0 relative border-0' onClick={() => window.open('https://github.com/gabrielrochasouza/chess-game-front-end')}>
+                        <GitHubLogoIcon className='w-6 h-6' />
+                    </Button>
                     
                     <Menubar className='p-0 m-0 bg-transparent rounded-full border-0' onValueChange={(e) => handleReadNotifications(!e)}>
                         <MenubarMenu>
