@@ -87,9 +87,11 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
 
     useEffect(()=> {
         socket.on('movePieceGlobal', ({ selectedLine, selectedColumn, targetLine, targetColumn, chessRoomId }: IMovePieceGlobal) => {
-            chessBoardRoomsInstances[chessRoomId].selectPiece(selectedLine, selectedColumn);
-            chessBoardRoomsInstances[chessRoomId].movePiece(targetLine, targetColumn);
-            setChessBoardRoomsInstances({ ...chessBoardRoomsInstances, [chessRoomId]: chessBoardRoomsInstances[chessRoomId] });
+            if (chessBoardRoomsInstances[chessRoomId]) {
+                chessBoardRoomsInstances[chessRoomId].selectPiece(selectedLine, selectedColumn);
+                chessBoardRoomsInstances[chessRoomId].movePiece(targetLine, targetColumn);
+                setChessBoardRoomsInstances({ ...chessBoardRoomsInstances, [chessRoomId]: chessBoardRoomsInstances[chessRoomId] });
+            }
         });
 
         return () => {
@@ -135,9 +137,9 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
             }
         });
         socket.on('sendNotification', (payload: { targetUserId: string, message: string, createdAt: string, username: string, roomId: string, readMessageAt: string, }) => {
-            new Audio(NewNotification).play();
             const playerId = localStorage.getItem('@UserId') || playerInfo.id;
             if (payload.targetUserId === playerId) {
+                new Audio(NewNotification).play();
                 checkToken()
                     .then(({ data }) => {
                         localStorage.setItem('@UserInfo', JSON.stringify(data.user));
