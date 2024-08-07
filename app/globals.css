@@ -73,6 +73,18 @@
   position: relative;
 }
 
+input:-webkit-autofill {
+  background-color: #09090b !important;
+  -webkit-box-shadow: 0 0 0px 1000px #09090b inset !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+input:-moz-autofill {
+  background-color: #09090b !important;
+  box-shadow: 0 0 0px 1000px #09090b inset !important;
+  -moz-text-fill-color: #fff !important;
+}
+
 @media (max-width: 1024px) {
   .sidebarmenu {
     position: absolute;
