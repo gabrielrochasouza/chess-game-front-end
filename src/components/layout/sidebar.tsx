@@ -6,6 +6,7 @@ import { MenubarSeparator } from '@/components/ui/menubar';
 import { useUsers } from '@/provider/users';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Avatar, AvatarFallback } from '../ui/avatar';
+import { ScrollArea } from '../ui/scroll-area';
 
 
 interface NavItem {
@@ -40,7 +41,7 @@ const navItems: NavItem[] = [
 ];
 
 export default function Sidebar() {
-    const { chessGames, playerInfo, onlineUsers, menuOpened, chessBoardRoomsInstances } = useUsers();
+    const { chessGames, playerInfo, onlineUsers, menuOpened, chessBoardRoomsInstances, setMenuOpened } = useUsers();
     const { username } = useParams();
 
     const onlineUsersIds: { [key: string]: boolean } = {};
@@ -57,8 +58,14 @@ export default function Sidebar() {
         return hex;
     };
 
+    const handleCloseMenu = () => {
+        if (window.innerWidth <= 1024) {
+            setMenuOpened(false);
+        }
+    };
+
     return (
-        <nav
+        <ScrollArea
             className={cn('relative h-screen border-r pt-16 lg:block w-72 max-w-72 overflow-auto transition-all z-20 sidebarmenu')}
             style={{ maxWidth: menuOpened ? '230px' : '0px', left: '-1px' }}
         >
@@ -81,6 +88,7 @@ export default function Sidebar() {
                                     <Link
                                         to={`/dashboard/${playerInfo.username}/${playerInfo.username === game.username1 ? game.username2 : game.username1}/${game.id}`}
                                         key={game.id}
+                                        onClick={handleCloseMenu}
                                     >
                                         <TooltipProvider>
                                             <Tooltip>
@@ -137,6 +145,6 @@ export default function Sidebar() {
                     </div>
                 </div>
             </div>
-        </nav>
+        </ScrollArea>
     );
 }

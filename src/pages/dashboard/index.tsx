@@ -195,8 +195,8 @@ const Dashboard = ()=> {
                                     <TableHead>UserName</TableHead>
                                     <TableHead>Wins</TableHead>
                                     <TableHead>Loses</TableHead>
-                                    <TableHead className='hidden lg:table-cell'>Draws</TableHead>
-                                    <TableHead className='hidden lg:table-cell'>Created At</TableHead>
+                                    <TableHead className='hidden xl:table-cell'>Draws</TableHead>
+                                    <TableHead className='hidden xl:table-cell'>Created At</TableHead>
                                     <TableHead className='w-2'></TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -207,8 +207,8 @@ const Dashboard = ()=> {
                                         <TableCell className='font-medium'>{user.username}</TableCell>
                                         <TableCell>{user.wins}</TableCell>
                                         <TableCell>{user.loses}</TableCell>
-                                        <TableCell className='hidden lg:table-cell'>{user.draws}</TableCell>
-                                        <TableCell className='hidden lg:table-cell'>{formatDateTime(user.createdAt)}</TableCell>
+                                        <TableCell className='hidden xl:table-cell'>{user.draws}</TableCell>
+                                        <TableCell className='hidden xl:table-cell'>{formatDateTime(user.createdAt)}</TableCell>
                                         <TableCell className='w-2'>
                                             <TooltipProvider>
                                                 <Tooltip>

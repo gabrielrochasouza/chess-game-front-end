@@ -87,7 +87,7 @@ input:-moz-autofill {
 
 @media (max-width: 1024px) {
   .sidebarmenu {
-    position: absolute;
+    position: absolute !important;
     background-color: #09090b;
   }
 }

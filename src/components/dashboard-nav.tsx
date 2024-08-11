@@ -6,6 +6,7 @@ import { Icons } from '@/components/icons';
 import { cn } from '@/lib/utils';
 import { Dispatch, SetStateAction } from 'react';
 import { logout } from '@/utils';
+import { useUsers } from '@/provider/users';
 
 interface NavItem {
     title: string;
@@ -23,6 +24,7 @@ interface DashboardNavProps {
 }
 
 export function DashboardNav({ items, setOpen }: DashboardNavProps) {
+    const { setMenuOpened } = useUsers();
 
     if (!items?.length) {
         return null;
@@ -42,6 +44,10 @@ export function DashboardNav({ items, setOpen }: DashboardNavProps) {
                                     logout();
                                 }
                                 if (setOpen) setOpen(false);
+
+                                if (window.innerWidth <= 1024) {
+                                    setMenuOpened(false);
+                                }
                             }}
                         >
                             <span
