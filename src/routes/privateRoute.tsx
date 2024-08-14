@@ -5,9 +5,9 @@ import { logout } from '@/utils';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import WhiteKnight from '@/assets/svg/white_knight.svg';
 import { ChessBoard } from '@/models/ChessBoard';
 import NewNotification from '@/assets/sound/new-notification.mp3';
+import Loader from '@/components/Loader';
 
 interface PrivateRouteProps {
   children: ReactNode;
@@ -177,16 +177,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
         return <Navigate to='login' />;
     }
 
-    return localStorage.getItem('@Token') && isAuthenticated ? <>{children}</> : (
-        <div className='h-screen w-full flex justify-center items-center text-2xl'>
-            <div className='text-center'>
-                <img className='w-20 h-20 mb-4' src={WhiteKnight} />
-                <div>
-                    Loading...
-                </div>
-            </div>
-        </div>
-    ); 
+    return localStorage.getItem('@Token') && isAuthenticated ? <>{children}</> : <Loader />; 
 };
 
 export default PrivateRoute;
