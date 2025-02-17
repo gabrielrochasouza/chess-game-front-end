@@ -138,15 +138,26 @@ export class ChessBoard {
     }
 
     public botMove() {
+        const now = Date.now();
         const bestMove = this.findBestMove();
         if (bestMove) {
             this.selectPiece(bestMove.from.line, bestMove.from.column);
             this.movePiece(bestMove.to.line, bestMove.to.column);
+            const after = Date.now();
+            console.log('time spent', (after - now)/(1000), 's' );
         }
+
     }
     
 
-    public minimaxAlgorithm(chessBoard: chessBoardArrayType, depth: number, isMaximizingPlayer: boolean, alpha: number, beta: number, hasCheck: boolean = false): number {
+    public minimaxAlgorithm(
+        chessBoard: chessBoardArrayType,
+        depth: number,
+        isMaximizingPlayer: boolean,
+        alpha: number,
+        beta: number,
+        hasCheck: boolean = false
+    ): number {
         if (depth === 0 || this.checkMate || this.draw) {
             return this.evaluateBoard(chessBoard, isMaximizingPlayer);
         }
@@ -156,37 +167,36 @@ export class ChessBoard {
         if (this.verifyIfPlayerIsOnCheck(isMaximizingPlayer ? playerSide : adversarySide, chessBoard)) {
             hasCheck = true;
             if (this.verifySimulationBoardCheckMate(isMaximizingPlayer ? playerSide : adversarySide, chessBoard)) {
-                return isMaximizingPlayer ? -Infinity : Infinity;
+                return isMaximizingPlayer ? -100000 * depth : 100000 * depth;
             }
         }
 
         const moves = this.getAllPossibleMoves(chessBoard, isMaximizingPlayer ? this.turnOfPlay : this.turnOfPlay === 'white' ? 'black' : 'white');
-        if (isMaximizingPlayer) {
-            // Adversary
+
+        if (isMaximizingPlayer) { // Adversary
             let maxEval = -Infinity;
             for (const move of moves) {
                 const newChessBoard = this.cloneChessBoard(chessBoard);
                 this.makeMove(newChessBoard, move);
     
                 const evaluation = this.minimaxAlgorithm(newChessBoard, depth - 1, false, alpha, beta, hasCheck);
-                maxEval = Math.max(maxEval, hasCheck ? evaluation * 1.5 : evaluation);
-                alpha = Math.max(alpha, hasCheck ? evaluation * 1.5 : evaluation);
+                maxEval = Math.max(maxEval, hasCheck ? evaluation * 1.1 : evaluation);
+                alpha = Math.max(alpha, hasCheck ? evaluation * 1.1 : evaluation);
     
                 if (beta <= alpha) {
                     break; // Poda alfa-beta
                 }
             }
             return maxEval;
-        } else {
-            // PlayerSide
+        } else { // PlayerSide
             let minEval = Infinity;
             for (const move of moves) {
                 const newChessBoard = this.cloneChessBoard(chessBoard);
                 this.makeMove(newChessBoard, move);
     
                 const evaluation = this.minimaxAlgorithm(newChessBoard, depth - 1, true, alpha, beta, hasCheck);
-                minEval = Math.min(minEval, hasCheck ? evaluation * 1.5 : evaluation);
-                beta = Math.min(beta, hasCheck ? evaluation * 1.5 : evaluation);
+                minEval = Math.min(minEval, hasCheck ? evaluation * 1.1 : evaluation);
+                beta = Math.min(beta, hasCheck ? evaluation * 1.1 : evaluation);
     
                 if (beta <= alpha) {
                     break; // Poda alfa-beta
@@ -384,7 +394,7 @@ export class ChessBoard {
         const playerSide = this.playerSide;
         const adversarySide = this.playerSide === 'white' ? 'black' : 'white';
         if (this.verifyIfPlayerIsOnCheck(isMaximizingPlayer ? playerSide : adversarySide, chessBoard)) {
-            evaluation += isMaximizingPlayer ? 100 : -100;
+            evaluation += isMaximizingPlayer ? 20 : -20;
         }
     
         return evaluation;
