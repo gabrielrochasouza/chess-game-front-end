@@ -189,10 +189,21 @@ export class ChessBoard {
     public findBestMove(): { from: { line: number, column: number }, to: { line: number, column: number } } | null {
         let bestMove = null;
         let bestValue = -Infinity;
-        const moves = this.getAllPossibleMoves(this.chessBoard, this.turnOfPlay);
+
+        const moves = this.getAllPossibleMoves(this.chessBoard, this.turnOfPlay)
+            .filter((move: { from: { line: number, column: number }, to: { line: number, column: number } }) => {
+                return !this.verifyIfNextMoveWillBeCheck(
+                    this.turnOfPlay,
+                    move.to.line,
+                    move.to.column,
+                    move.from.line,
+                    move.from.column
+                );
+            });
     
         if (moves.length === 0) {
-            return null; // Não há movimentos possíveis
+            console.log('moves', moves);
+            return null;
         }
     
         for (const move of moves) {
@@ -207,7 +218,6 @@ export class ChessBoard {
             }
         }
     
-        // Se nenhum movimento for encontrado, escolhe um aleatório
         if (!bestMove) {
             console.log('bestMove', bestMove);
             bestMove = moves[Math.floor(Math.random() * moves.length)];
