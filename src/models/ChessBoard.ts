@@ -106,13 +106,13 @@ export class ChessBoard {
     private setPieceToSquare(currentPiece: ChessPiece, targetLine: number, targetColumn: number) {
         const rockMove = !this.selectedPiece.piece.pieceHasAlreadyMove && this.selectedPiece.piece.kingPiece && (targetColumn === 6 || targetColumn === 2);
         currentPiece.piece.pieceHasAlreadyMove = true;
-        currentPiece.setChessPiece(this.chessBoard, targetLine, targetColumn);
+        currentPiece?.setChessPiece(this.chessBoard, targetLine, targetColumn);
         if (rockMove) {
             const rookPreviousColumn = targetColumn === 6 ? 7 : 0;
             const rookTargetColumn = targetColumn === 6 ? 5 : 3;
             const rookPiece = this.chessBoard[targetLine][rookPreviousColumn].currentPiece;
             rookPiece.piece.pieceHasAlreadyMove = true;
-            rookPiece.setChessPiece(this.chessBoard, targetLine, rookTargetColumn);
+            rookPiece?.setChessPiece(this.chessBoard, targetLine, rookTargetColumn);
         }
     }
 
@@ -153,7 +153,16 @@ export class ChessBoard {
     
         const moves = this.getAllPossibleMoves(chessBoard, isMaximizingPlayer ? this.turnOfPlay : this.turnOfPlay === 'white' ? 'black' : 'white');
     
+        const playerSide = this.playerSide;
+        const adversarySide = this.playerSide === 'white' ? 'black' : 'white';
+        if (this.verifyIfPlayerIsOnCheck(isMaximizingPlayer ? playerSide : adversarySide, chessBoard)) {
+            if (this.verifySimulationBoardCheckMate(isMaximizingPlayer ? playerSide : adversarySide, chessBoard)) {
+                return isMaximizingPlayer ? Infinity : -Infinity;
+            }
+        }
+
         if (isMaximizingPlayer) {
+            // Adversary
             let maxEval = -Infinity;
             for (const move of moves) {
                 const newChessBoard = this.cloneChessBoard(chessBoard);
@@ -169,6 +178,7 @@ export class ChessBoard {
             }
             return maxEval;
         } else {
+            // PlayerSide
             let minEval = Infinity;
             for (const move of moves) {
                 const newChessBoard = this.cloneChessBoard(chessBoard);
@@ -184,6 +194,64 @@ export class ChessBoard {
             }
             return minEval;
         }
+    }
+
+    public verifySimulationBoardIfNextMoveWillBeCheck(
+        colorOfPlayerBeeingAttacked: 'white' | 'black',
+        targetLine: number,
+        targetColumn: number,
+        previousLine: number,
+        previousColumn: number,
+        chessBoard: chessBoardArrayType,
+    ): boolean {
+        const cloneChessBoard = this.cloneChessBoard(chessBoard);
+
+        const selectedPiece = cloneChessBoard[previousLine][previousColumn].currentPiece;
+        selectedPiece?.setChessPiece(cloneChessBoard, targetLine, targetColumn);
+
+        let check = false;
+        const colorOfAttacker = colorOfPlayerBeeingAttacked === 'white' ? 'black' : 'white';
+
+        if(this.verifyIfPlayerIsOnCheck(colorOfAttacker, cloneChessBoard)) {
+            check = true;
+        }
+        return check;
+    }
+
+    public verifySimulationBoardCheckMate (colorOfplayerBeingAttacked: 'white' | 'black', chessBoard: chessBoardArrayType): boolean {
+        const possibleResults: boolean[] = [];
+        const board = new Array(8).fill(0).map(() => new Array(8).fill(0));
+        const pieces: ChessPiece[] = [];
+
+        board.map((line, previousLine: number) => line.map((_, previousColumn: number) => {
+            const selectedPiece = this.chessBoard[previousLine][previousColumn].currentPiece;
+
+            if (selectedPiece && selectedPiece.piece.color === colorOfplayerBeingAttacked){
+                    
+                const possibleMovesOfAttackedPlayer = selectedPiece.piece.checkPossibleMoves(this.chessBoard, previousLine, previousColumn);
+                    
+                pieces.push(selectedPiece);
+
+                possibleMovesOfAttackedPlayer.map((lineX, targetLine) => lineX.map((isPossibleToMove, targetColumn)=> {
+                    if(isPossibleToMove && selectedPiece) {
+                        const result = this.verifySimulationBoardIfNextMoveWillBeCheck(
+                            colorOfplayerBeingAttacked,
+                            targetLine,
+                            targetColumn,
+                            previousLine,
+                            previousColumn,
+                            chessBoard
+                        );
+                        possibleResults.push(result);
+                    }
+                }));
+
+            }
+        }) 
+        );
+        const checkMate = possibleResults.every(r => r);
+
+        return checkMate;
     }
     
     public findBestMove(): { from: { line: number, column: number }, to: { line: number, column: number } } | null {
@@ -322,7 +390,7 @@ export class ChessBoard {
         if (piece instanceof ChessPieceBishop) return 30;
         if (piece instanceof ChessPieceRook) return 50;
         if (piece instanceof ChessPieceQueen) return 90;
-        if (piece instanceof ChessPieceKing) return 90000000;
+        if (piece instanceof ChessPieceKing) return 900;
         return 0;
     }
 
