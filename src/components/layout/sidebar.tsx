@@ -33,6 +33,12 @@ const navItems: NavItem[] = [
         label: 'profile',
     },
     {
+        title: 'Play with bot',
+        href: '/dashboard/play-with-bot',
+        icon: 'bot',
+        label: 'bot',
+    },
+    {
         title: 'Logout',
         href: '/login',
         icon: 'logout',

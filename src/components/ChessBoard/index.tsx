@@ -16,6 +16,7 @@ import { useParams } from 'react-router-dom';
 import { increaseWinCounter } from '@/api';
 import { toast } from 'react-toastify';
 import { useUsers } from '@/provider/users';
+import { Button } from '../ui/button';
 
 interface IControlledPosition {
     x: number;
@@ -68,13 +69,15 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline, player
     };
     useEffect(() => {
         chessBoardInstance.playerSide = chessPieceSide;
-        socket.on('movePiece', (payload: Payload) => {
-            movePieceOfAdversary(payload);
-        });
+        if (playerAdversaryId !== 'bot') {
+            socket.on('movePiece', (payload: Payload) => {
+                movePieceOfAdversary(payload);
+            });
 
-        return () => {
-            socket.off('movePiece');
-        };
+            return () => {
+                socket.off('movePiece');
+            };
+        }
     }, [turnOfPlay, chessPieceSide, forceUpdate, roomId]);
 
     useEffect(() => {
@@ -115,13 +118,23 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline, player
                 chessBoardInstance.changeModeToSelectMode();
             }
             forceUpdate();
+            if (chessBoardInstance.roomId === 'bot' && chessBoardInstance.playerSide !== chessBoardInstance.turnOfPlay) {
+                callBotMove();
+            }
         }
     };
 
-    // const restartGameHandler = () => {
-    //     chessBoardInstance.startGame();
-    //     forceUpdate();
-    // };
+    const callBotMove = () => {
+        setTimeout(() => {
+            chessBoardInstance.botMove();
+            forceUpdate();
+        }, 1000);
+    };
+
+    const restartGameHandler = () => {
+        chessBoardInstance.startGame();
+        forceUpdate();
+    };
 
     const pieceSelectionHandler = (pieceName: pieceNamesType) => {
         chessBoardInstance.setSelectedPieceInPawnPlace(pieceName);
@@ -224,7 +237,7 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline, player
                 {(!checkMate && whitePlayerOnCheck) && <p>Peças brancas estão em check!</p>}
                 {(checkMate && turnOfPlay === 'white') && <p>Peças pretas ganharam!</p>}
                 {(checkMate && turnOfPlay === 'black') && <p>Peças brancas ganharam!</p>}
-                {/* {!chessPieceSide && <button onClick={restartGameHandler}>Restart Game</button>} */}
+                {(chessBoardInstance.roomId === 'bot') && <Button className='mt-4' onClick={restartGameHandler}>Restart Game</Button>}
             </div>
             {chessBoardInstance.pawnReachedEndOfChessBoard && (
                 <div className='select-piece'>
@@ -247,10 +260,6 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline, player
 
                 </div>
             )}
-            <div className='playing-as centralize'>
-                <img src={chessPieceSide === 'black' ? BlackKnight : WhiteKnight} alt='knight piece' />
-                <span>Playing as {chessPieceSide}</span>
-            </div>
         </div>
     );
 }

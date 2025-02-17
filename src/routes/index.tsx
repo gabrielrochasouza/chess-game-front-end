@@ -5,6 +5,7 @@ import Login from '@/pages/login';
 import Register from '@/pages/register';
 import PrivateRoute from './privateRoute';
 import Profile from '@/pages/profile';
+import Bot from '@/pages/bot';
 
 const router = createBrowserRouter([
     {
@@ -38,6 +39,14 @@ const router = createBrowserRouter([
     {
         path: '/register',
         element: <Register />,
+    },
+    {
+        path: '/dashboard/play-with-bot',
+        element: (
+            <PrivateRoute>
+                <Bot />
+            </PrivateRoute>
+        ),
     },
     {
         path: '/*',

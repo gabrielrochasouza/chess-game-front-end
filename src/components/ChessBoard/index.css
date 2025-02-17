@@ -77,19 +77,19 @@ p, button {
 
 @media (max-width: 450px) {
     .board {
-        height: 320px !important;
-        width: 320px !important;
+        height: 360px !important;
+        width: 360px !important;
     }
     .square {
-        width: 40px !important;
-        height: 40px !important;
+        width: 45px !important;
+        height: 45px !important;
     }
     .square img {
-        width: 40px !important;
-        height: 40px !important;
+        width: 45px !important;
+        height: 45px !important;
     }
     .dead-pieces {
-        width: 320px !important;
+        width: 360px !important;
     }
 }
 

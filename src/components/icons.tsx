@@ -31,6 +31,7 @@ import {
     X,
     UserPlus,
     LogOut,
+    Bot,
 } from 'lucide-react';
   
 export type Icon = LucideIcon;
@@ -64,6 +65,7 @@ export const Icons = {
     moon: Moon,
     laptop: Laptop,
     userPlus: UserPlus,
+    bot: Bot,
     gitHub: ({ ...props }: LucideProps) => (
         <svg
             aria-hidden='true'
