@@ -76,7 +76,14 @@ export class ChessBoard {
         if (this.chessBoard[l][c].currentPiece) {
             this.chessBoard[l][c].isSelected = true;
             this.chessBoard = this.filterMovesThatWouldResultInCheck(
-                l, c, this.chessBoard[l][c].currentPiece?.piece.setPossibleMoves(this.chessBoard, l, c)
+                l,
+                c,
+                this.chessBoard[l][c].currentPiece?.piece.setPossibleMoves(
+                    this.chessBoard,
+                    l,
+                    c,
+                    this.playerSide === 'white' ? this.whitePlayerOnCheck : this.blackPlayerOnCheck,
+                ),
             );
         }
     }
@@ -268,7 +275,9 @@ export class ChessBoard {
         let bestMove = null;
         let bestValue = -Infinity;
 
-        const moves = this.getAllPossibleMoves(this.chessBoard, this.turnOfPlay)
+        const playerOnCheck = this.verifyIfPlayerIsOnCheck(this.turnOfPlay, this.chessBoard);
+
+        const moves = this.getAllPossibleMoves(this.chessBoard, this.turnOfPlay, playerOnCheck)
             .filter((move: { from: { line: number, column: number }, to: { line: number, column: number } }) => {
                 return !this.verifyIfNextMoveWillBeCheck(
                     this.turnOfPlay,
@@ -304,12 +313,16 @@ export class ChessBoard {
         return bestMove;
     }
     
-    public getAllPossibleMoves(chessBoard: chessBoardArrayType, color: 'white' | 'black'): { from: { line: number, column: number }, to: { line: number, column: number } }[] {
+    public getAllPossibleMoves(
+        chessBoard: chessBoardArrayType,
+        color: 'white' | 'black',
+        playerOnCheck: boolean = false,
+    ): { from: { line: number, column: number }, to: { line: number, column: number } }[] {
         const moves: { from: { line: number, column: number }, to: { line: number, column: number } }[] = [];
     
         chessBoard.forEach((line, l) => line.forEach((square, c) => {
             if (square.currentPiece && square.currentPiece.color === color) {
-                const possibleMoves = square.currentPiece.piece.checkPossibleMoves(chessBoard, l, c);
+                const possibleMoves = square.currentPiece.piece.checkPossibleMoves(chessBoard, l, c, playerOnCheck);
     
                 possibleMoves.forEach((moveLine, targetLine) => moveLine.forEach((isPossible, targetColumn) => {
                     if (isPossible) {
@@ -394,7 +407,7 @@ export class ChessBoard {
         const playerSide = this.playerSide;
         const adversarySide = this.playerSide === 'white' ? 'black' : 'white';
         if (this.verifyIfPlayerIsOnCheck(isMaximizingPlayer ? playerSide : adversarySide, chessBoard)) {
-            evaluation += isMaximizingPlayer ? 20 : -20;
+            evaluation += isMaximizingPlayer ? 30 : -30;
         }
     
         return evaluation;

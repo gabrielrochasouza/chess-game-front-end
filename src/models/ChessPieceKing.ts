@@ -19,7 +19,7 @@ export default class ChessPieceKing implements ClassPieceType {
         this.allPossibleMoves = new Array(8).fill(false).map(() => new Array(8).fill(false));
     }
 
-    kingPossibleMoves(chessBoard: chessBoardArrayType, l: number, c: number): boolean[][] {
+    kingPossibleMoves(chessBoard: chessBoardArrayType, l: number, c: number, onCheck: boolean = false): boolean[][] {
         this.resetPossibleMoves();
 
         const allPossibleMoves = this.allPossibleMoves;
@@ -35,7 +35,7 @@ export default class ChessPieceKing implements ClassPieceType {
         if(l - 1 >= 0 && (!chessBoard[l - 1][c].currentPiece || chessBoard[l - 1][c].currentPiece?.color !== this.color)) (allPossibleMoves[l - 1][c] = true);
         
         // Verify if rock is possible
-        if (!this.pieceHasAlreadyMove) {
+        if (!this.pieceHasAlreadyMove && !onCheck) {
             if (chessBoard[l][7].currentPiece && !chessBoard[l][7].currentPiece.piece.pieceHasAlreadyMove) {
                 if (!chessBoard[l][5].currentPiece && !chessBoard[l][6].currentPiece && allPossibleMoves[l][c + 1]) {
                     allPossibleMoves[l][c + 2] = true;
@@ -50,13 +50,13 @@ export default class ChessPieceKing implements ClassPieceType {
 
         return allPossibleMoves;
     }
-    setPossibleMoves(chessBoard: chessBoardArrayType, l: number, c: number) {
-        this.allPossibleMoves = this.kingPossibleMoves(chessBoard, l, c);
+    setPossibleMoves(chessBoard: chessBoardArrayType, l: number, c: number, onCheck: boolean = false) {
+        this.allPossibleMoves = this.kingPossibleMoves(chessBoard, l, c, onCheck);
         return chessBoard.map((line: chessBoardType[], l: number) => line.map((column: chessBoardType, c: number) => ({...column, isPossibleToMove: this.allPossibleMoves[l][c]})));
     }
 
-    checkIfItsAttackingKing (color: 'white' | 'black', chessBoard: chessBoardArrayType, l: number, c: number):boolean {
-        this.allPossibleMoves = this.kingPossibleMoves(chessBoard, l, c);
+    checkIfItsAttackingKing (color: 'white' | 'black', chessBoard: chessBoardArrayType, l: number, c: number, onCheck: boolean = false):boolean {
+        this.allPossibleMoves = this.kingPossibleMoves(chessBoard, l, c, onCheck);
         let result = false;
         chessBoard.map((line: chessBoardType[], l: number) => line.map((column: chessBoardType, c: number) => {
             if(
@@ -71,8 +71,8 @@ export default class ChessPieceKing implements ClassPieceType {
         return result;
     }
 
-    checkPossibleMoves(chessBoard: chessBoardArrayType, l: number, c: number) {
-        return this.kingPossibleMoves(chessBoard, l, c);
+    checkPossibleMoves(chessBoard: chessBoardArrayType, l: number, c: number, onCheck: boolean = false) {
+        return this.kingPossibleMoves(chessBoard, l, c, onCheck);
     }
 
 }

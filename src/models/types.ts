@@ -33,7 +33,7 @@ export interface ClassPieceType {
         previousLine: number,
         previousColumn: number,
     },
-    setPossibleMoves: (chessBoard: chessBoardArrayType, l: number, c: number) => chessBoardArrayType,
+    setPossibleMoves: (chessBoard: chessBoardArrayType, l: number, c: number, onCheck?: boolean) => chessBoardArrayType,
     checkIfItsAttackingKing: (color: colorType, chessBoard: chessBoardArrayType, l: number, c: number) => boolean,
     checkPossibleMoves: (chessBoard: chessBoardArrayType, l: number, c: number)=> possibleMovesType,
 }
