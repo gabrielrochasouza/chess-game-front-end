@@ -37,12 +37,12 @@ export default class ChessPieceKing implements ClassPieceType {
         // Verify if rock is possible
         if (!this.pieceHasAlreadyMove) {
             if (chessBoard[l][7].currentPiece && !chessBoard[l][7].currentPiece.piece.pieceHasAlreadyMove) {
-                if (!chessBoard[l][5].currentPiece && !chessBoard[l][6].currentPiece) {
+                if (!chessBoard[l][5].currentPiece && !chessBoard[l][6].currentPiece && allPossibleMoves[l][c + 1]) {
                     allPossibleMoves[l][c + 2] = true;
                 }
             }
             if (chessBoard[l][0].currentPiece && !chessBoard[l][0].currentPiece.piece.pieceHasAlreadyMove) {
-                if (!chessBoard[l][1].currentPiece && !chessBoard[l][2].currentPiece && !chessBoard[l][3].currentPiece) {
+                if (!chessBoard[l][1].currentPiece && !chessBoard[l][2].currentPiece && allPossibleMoves[l][c - 1]) {
                     allPossibleMoves[l][c - 2] = true;
                 }
             }

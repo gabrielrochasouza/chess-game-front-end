@@ -146,21 +146,21 @@ export class ChessBoard {
     }
     
 
-    public minimaxAlgorithm(chessBoard: chessBoardArrayType, depth: number, isMaximizingPlayer: boolean, alpha: number, beta: number): number {
+    public minimaxAlgorithm(chessBoard: chessBoardArrayType, depth: number, isMaximizingPlayer: boolean, alpha: number, beta: number, hasCheck: boolean = false): number {
         if (depth === 0 || this.checkMate || this.draw) {
-            return this.evaluateBoard(chessBoard);
+            return this.evaluateBoard(chessBoard, isMaximizingPlayer);
         }
-    
-        const moves = this.getAllPossibleMoves(chessBoard, isMaximizingPlayer ? this.turnOfPlay : this.turnOfPlay === 'white' ? 'black' : 'white');
     
         const playerSide = this.playerSide;
         const adversarySide = this.playerSide === 'white' ? 'black' : 'white';
         if (this.verifyIfPlayerIsOnCheck(isMaximizingPlayer ? playerSide : adversarySide, chessBoard)) {
+            hasCheck = true;
             if (this.verifySimulationBoardCheckMate(isMaximizingPlayer ? playerSide : adversarySide, chessBoard)) {
-                return isMaximizingPlayer ? Infinity : -Infinity;
+                return isMaximizingPlayer ? -Infinity : Infinity;
             }
         }
 
+        const moves = this.getAllPossibleMoves(chessBoard, isMaximizingPlayer ? this.turnOfPlay : this.turnOfPlay === 'white' ? 'black' : 'white');
         if (isMaximizingPlayer) {
             // Adversary
             let maxEval = -Infinity;
@@ -168,9 +168,9 @@ export class ChessBoard {
                 const newChessBoard = this.cloneChessBoard(chessBoard);
                 this.makeMove(newChessBoard, move);
     
-                const evaluation = this.minimaxAlgorithm(newChessBoard, depth - 1, false, alpha, beta);
-                maxEval = Math.max(maxEval, evaluation);
-                alpha = Math.max(alpha, evaluation);
+                const evaluation = this.minimaxAlgorithm(newChessBoard, depth - 1, false, alpha, beta, hasCheck);
+                maxEval = Math.max(maxEval, hasCheck ? evaluation * 1.5 : evaluation);
+                alpha = Math.max(alpha, hasCheck ? evaluation * 1.5 : evaluation);
     
                 if (beta <= alpha) {
                     break; // Poda alfa-beta
@@ -184,9 +184,9 @@ export class ChessBoard {
                 const newChessBoard = this.cloneChessBoard(chessBoard);
                 this.makeMove(newChessBoard, move);
     
-                const evaluation = this.minimaxAlgorithm(newChessBoard, depth - 1, true, alpha, beta);
-                minEval = Math.min(minEval, evaluation);
-                beta = Math.min(beta, evaluation);
+                const evaluation = this.minimaxAlgorithm(newChessBoard, depth - 1, true, alpha, beta, hasCheck);
+                minEval = Math.min(minEval, hasCheck ? evaluation * 1.5 : evaluation);
+                beta = Math.min(beta, hasCheck ? evaluation * 1.5 : evaluation);
     
                 if (beta <= alpha) {
                     break; // Poda alfa-beta
@@ -360,7 +360,7 @@ export class ChessBoard {
         piece.c = to.column;
     }
     
-    public evaluateBoard(chessBoard: chessBoardArrayType): number {
+    public evaluateBoard(chessBoard: chessBoardArrayType, isMaximizingPlayer: boolean): number {
         let evaluation = 0;
     
         chessBoard.forEach((line) => line.forEach((square) => {
@@ -376,10 +376,16 @@ export class ChessBoard {
         ];
         centerSquares.forEach(([l, c]) => {
             const piece = chessBoard[l][c].currentPiece;
-            if (piece && piece.color === this.turnOfPlay) {
-                evaluation += 5;
+            if (piece) {
+                evaluation += piece.color === this.turnOfPlay ? 5 : -5;
             }
         });
+
+        const playerSide = this.playerSide;
+        const adversarySide = this.playerSide === 'white' ? 'black' : 'white';
+        if (this.verifyIfPlayerIsOnCheck(isMaximizingPlayer ? playerSide : adversarySide, chessBoard)) {
+            evaluation += isMaximizingPlayer ? 100 : -100;
+        }
     
         return evaluation;
     }
