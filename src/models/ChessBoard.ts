@@ -178,7 +178,7 @@ export class ChessBoard {
             }
         }
 
-        const moves = this.getAllPossibleMoves(chessBoard, isMaximizingPlayer ? this.turnOfPlay : this.turnOfPlay === 'white' ? 'black' : 'white');
+        const moves = this.getAllPossibleMoves(chessBoard, isMaximizingPlayer ? this.turnOfPlay : this.turnOfPlay === 'white' ? 'black' : 'white', hasCheck);
 
         if (isMaximizingPlayer) { // Adversary
             let maxEval = -Infinity;
@@ -187,8 +187,8 @@ export class ChessBoard {
                 this.makeMove(newChessBoard, move);
     
                 const evaluation = this.minimaxAlgorithm(newChessBoard, depth - 1, false, alpha, beta, hasCheck);
-                maxEval = Math.max(maxEval, hasCheck ? evaluation * 1.1 : evaluation);
-                alpha = Math.max(alpha, hasCheck ? evaluation * 1.1 : evaluation);
+                maxEval = Math.max(maxEval, hasCheck ? evaluation * 1.05 : evaluation);
+                alpha = Math.max(alpha, hasCheck ? evaluation * 1.05 : evaluation);
     
                 if (beta <= alpha) {
                     break; // Poda alfa-beta
@@ -202,8 +202,8 @@ export class ChessBoard {
                 this.makeMove(newChessBoard, move);
     
                 const evaluation = this.minimaxAlgorithm(newChessBoard, depth - 1, true, alpha, beta, hasCheck);
-                minEval = Math.min(minEval, hasCheck ? evaluation * 1.1 : evaluation);
-                beta = Math.min(beta, hasCheck ? evaluation * 1.1 : evaluation);
+                minEval = Math.min(minEval, hasCheck ? evaluation * 1.05 : evaluation);
+                beta = Math.min(beta, hasCheck ? evaluation * 1.05 : evaluation);
     
                 if (beta <= alpha) {
                     break; // Poda alfa-beta
@@ -389,11 +389,13 @@ export class ChessBoard {
         chessBoard.forEach((line, l) => line.forEach((square, c) => {
             if (square.currentPiece) {
                 const piece = square.currentPiece.piece;
-                const value = this.getPieceValue(piece);
+                const value = this.getPieceValue(piece) * 3;
                 evaluation += square.currentPiece.color === this.turnOfPlay ? value : -value;
 
-                const possibleMoves = square.currentPiece.piece.checkPossibleMoves(chessBoard, l, c).flat().length;
-                evaluation += square.currentPiece.color === this.turnOfPlay ? possibleMoves : -possibleMoves;
+                if (square.currentPiece.piece.name === 'pawn') {
+                    const possibleMoves = square.currentPiece.piece.checkPossibleMoves(chessBoard, l, c).flat().length;
+                    evaluation += square.currentPiece.color === this.turnOfPlay ? possibleMoves : -possibleMoves;
+                }
             }
         }));
     
@@ -410,7 +412,7 @@ export class ChessBoard {
         const playerSide = this.playerSide;
         const adversarySide = this.playerSide === 'white' ? 'black' : 'white';
         if (this.verifyIfPlayerIsOnCheck(isMaximizingPlayer ? playerSide : adversarySide, chessBoard)) {
-            evaluation += isMaximizingPlayer ? 30 : -30;
+            evaluation += isMaximizingPlayer ? 5 : -5;
         }
     
         return evaluation;

@@ -128,7 +128,7 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline, player
         setTimeout(() => {
             chessBoardInstance.botMove();
             forceUpdate();
-        }, 1000);
+        }, 300);
     };
 
     const restartGameHandler = () => {
