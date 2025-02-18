@@ -234,9 +234,7 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline, player
                     <svg height='28' width='28'>
                         <circle cx='14' cy='14' r='12' stroke='#0e857b' strokeWidth='2' fill={turnOfPlay} />
                     </svg>
-                    <h3>
-                        Vez das peças {turnOfPlay === 'white' ? 'brancas' : 'pretas'}
-                    </h3>
+                    <h3>{turnOfPlay === 'white' ? 'Brancas' : 'Pretas'} jogam.</h3>
                 </div>
                 {(!checkMate && blackPlayerOnCheck) && <p>Peças pretas estão em check!</p>}
                 {(!checkMate && whitePlayerOnCheck) && <p>Peças brancas estão em check!</p>}

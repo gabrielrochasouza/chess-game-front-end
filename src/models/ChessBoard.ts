@@ -164,7 +164,7 @@ export class ChessBoard {
             this.selectPiece(bestMove.from.line, bestMove.from.column);
             this.movePiece(bestMove.to.line, bestMove.to.column);
             const after = Date.now();
-            console.log('time spent', (after - now)/(1000), 's' );
+            console.log('time spent', (after - now)/(1000) + 's' );
         }
 
     }
@@ -318,10 +318,10 @@ export class ChessBoard {
             }
         }
     
-        if (!bestMove) {
-            console.log('bestMove', bestMove);
-            bestMove = moves[Math.floor(Math.random() * moves.length)];
-        }
+        // if (!bestMove) {
+        //     console.log('bestMove', bestMove);
+        //     bestMove = moves[Math.floor(Math.random() * moves.length)];
+        // }
     
         return bestMove;
     }
@@ -415,30 +415,35 @@ export class ChessBoard {
         chessBoard.forEach((line, l) => line.forEach((square, c) => {
             if (square.currentPiece) {
                 const piece = square.currentPiece.piece;
-                const value = this.getPieceValue(piece) * 3;
+                const value = this.getPieceValue(piece) * 4;
                 evaluation += square.currentPiece.color === this.turnOfPlay ? value : -value;
+            }
 
-                if (square.currentPiece.piece.name !== 'pawn') {
-                    const possibleMoves = square.currentPiece.piece.checkPossibleMoves(chessBoard, l, c).flat().length;
-                    evaluation += square.currentPiece.color === this.turnOfPlay ? possibleMoves : -possibleMoves;
+            if (square?.currentPiece?.piece?.name === 'rook') {
+                const isRookMoveUnnecessary = this.isRookMoveUnnecessary(chessBoard, l, c, square.currentPiece.color);
+                if (isRookMoveUnnecessary) {
+                    evaluation += square.currentPiece.color === this.turnOfPlay ? -20 : 20; // Penalização
                 }
             }
         }));
     
         const centerSquares = [
-            [3, 3], [3, 4], [4, 3], [4, 4]
+            [3, 3], [3, 4], [4, 3], [4, 4], 
+            [5, 5], [5, 4], [5, 3], [5, 2],
+            [2, 5], [2, 4], [2, 3], [2, 2],
+            [3, 5], [4, 5], [3, 2], [4, 2],
         ];
         centerSquares.forEach(([l, c]) => {
             const piece = chessBoard[l][c].currentPiece;
             if (piece) {
-                evaluation += piece.color === this.turnOfPlay ? 5 : -5;
+                evaluation += piece.color === this.turnOfPlay ? 10 : -10;
             }
         });
 
         const playerSide = this.playerSide;
         const adversarySide = this.playerSide === 'white' ? 'black' : 'white';
         if (this.verifyIfPlayerIsOnCheck(isMaximizingPlayer ? playerSide : adversarySide, chessBoard)) {
-            evaluation += isMaximizingPlayer ? 5 : -5;
+            evaluation += isMaximizingPlayer ? 10 : -10;
         }
     
         return evaluation;
@@ -452,6 +457,42 @@ export class ChessBoard {
         if (piece instanceof ChessPieceQueen) return 90;
         if (piece instanceof ChessPieceKing) return 900;
         return 0;
+    }
+
+    public isRookMoveUnnecessary(chessBoard: chessBoardArrayType, l: number, c: number, color: 'white' | 'black'): boolean {
+        // Verifica se a torre está capturando uma peça
+        if (chessBoard[l][c].currentPiece && chessBoard[l][c].currentPiece.color !== color) {
+            return false; // Movimento de captura não é desnecessário
+        }
+    
+        const isImportantSquare = this.isImportantSquare(l, c);
+        const isOpenFile = this.isOpenFile(chessBoard, c, color);
+    
+        if (isImportantSquare || isOpenFile) {
+            return false; // Movimento para casa importante não é desnecessário
+        }
+    
+        return true;
+    }
+    
+    public isImportantSquare(l: number, c: number): boolean {
+        const centerSquares = [
+            [3, 3], [3, 4], [4, 3], [4, 4], 
+            [5, 5], [5, 4], [5, 3], [5, 2],
+            [2, 5], [2, 4], [2, 3], [2, 2],
+            [3, 5], [4, 5], [3, 2], [4, 2],
+        ];
+        return centerSquares.some(([centerL, centerC]) => centerL === l && centerC === c);
+    }
+    
+    public isOpenFile(chessBoard: chessBoardArrayType, column: number, color: 'white' | 'black'): boolean {
+        for (let i = 0; i < 8; i++) {
+            const piece = chessBoard[i][column].currentPiece;
+            if (piece && piece.color === color && piece.piece instanceof ChessPiecePawn) {
+                return false; // Há um peão da mesma cor na coluna
+            }
+        }
+        return true; // Coluna aberta
     }
 
     public cloneChessBoard(chessBoard: chessBoardArrayType): chessBoardArrayType {
