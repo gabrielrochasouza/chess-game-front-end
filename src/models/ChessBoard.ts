@@ -386,11 +386,14 @@ export class ChessBoard {
     public evaluateBoard(chessBoard: chessBoardArrayType, isMaximizingPlayer: boolean): number {
         let evaluation = 0;
     
-        chessBoard.forEach((line) => line.forEach((square) => {
+        chessBoard.forEach((line, l) => line.forEach((square, c) => {
             if (square.currentPiece) {
                 const piece = square.currentPiece.piece;
                 const value = this.getPieceValue(piece);
                 evaluation += square.currentPiece.color === this.turnOfPlay ? value : -value;
+
+                const possibleMoves = square.currentPiece.piece.checkPossibleMoves(chessBoard, l, c).flat().length;
+                evaluation += square.currentPiece.color === this.turnOfPlay ? possibleMoves : -possibleMoves;
             }
         }));
     
