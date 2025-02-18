@@ -7,7 +7,7 @@
 .chess-board-component {
     flex-direction: column;
     text-align: center;
-    margin: 0px auto 70px;
+    margin: 0px auto 0px;
 }
 
 .board {
@@ -139,7 +139,7 @@ p, button {
 }
 
 .info-block {
-    height: 72px;
+    height: 50px;
 }
 
 button {
@@ -168,6 +168,14 @@ button {
     flex-direction: column;
 }
 
+.select-side {
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    flex-wrap: wrap;
+    height: 80%;
+}
 .black-pieces, .white-pieces {
     width: 400px  !important;
     display: flex;
@@ -177,13 +185,13 @@ button {
     gap: 10px;
 }
 
-.select-piece img {
+.select-piece img, .select-side img {
     cursor: pointer;
-    width: 90px !important;
+    width: 120px !important;
     transition: 1s;
 }
 
-.select-piece img:hover {
+.select-piece img:hover, .select-side img:hover {
     transform: scale(1.2);
     transition: 1s;
 }

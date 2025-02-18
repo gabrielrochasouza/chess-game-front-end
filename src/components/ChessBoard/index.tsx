@@ -16,7 +16,7 @@ import { useParams } from 'react-router-dom';
 import { increaseWinCounter } from '@/api';
 import { toast } from 'react-toastify';
 import { useUsers } from '@/provider/users';
-import { Button } from '../ui/button';
+// import { Button } from '../ui/button';
 
 interface IControlledPosition {
     x: number;
@@ -118,7 +118,11 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline, player
                 chessBoardInstance.changeModeToSelectMode();
             }
             forceUpdate();
-            if (chessBoardInstance.roomId === 'bot' && chessBoardInstance.playerSide !== chessBoardInstance.turnOfPlay) {
+            if (
+                chessBoardInstance.roomId === 'bot' &&
+                chessBoardInstance.playerSide !== chessBoardInstance.turnOfPlay &&
+                !chessBoardInstance.pawnReachedEndOfChessBoard
+            ) {
                 callBotMove();
             }
         }
@@ -131,13 +135,14 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline, player
         }, 300);
     };
 
-    const restartGameHandler = () => {
-        chessBoardInstance.startGame();
-        forceUpdate();
-    };
+    // const restartGameHandler = () => {
+    //     chessBoardInstance.startGame();
+    //     forceUpdate();
+    // };
 
     const pieceSelectionHandler = (pieceName: pieceNamesType) => {
         chessBoardInstance.setSelectedPieceInPawnPlace(pieceName);
+        callBotMove();
         forceUpdate();
     };
 
@@ -237,9 +242,9 @@ function ChessBoard({ chessPieceSide, chessBoardInstance, playerIsOnline, player
                 {(!checkMate && whitePlayerOnCheck) && <p>Peças brancas estão em check!</p>}
                 {(checkMate && turnOfPlay === 'white') && <p>Peças pretas ganharam!</p>}
                 {(checkMate && turnOfPlay === 'black') && <p>Peças brancas ganharam!</p>}
-                {(chessBoardInstance.roomId === 'bot') && <Button className='mt-4' onClick={restartGameHandler}>Restart Game</Button>}
+                {/* {(chessBoardInstance.roomId === 'bot') && <Button className='mt-4' onClick={restartGameHandler}>Restart Game</Button>} */}
             </div>
-            {chessBoardInstance.pawnReachedEndOfChessBoard && (
+            {(chessBoardInstance.pawnReachedEndOfChessBoard && (chessBoardInstance.roomId === 'bot' && chessBoardInstance.playerSide !== turnOfPlay)) && (
                 <div className='select-piece'>
                     <h2>Select One Piece</h2>
                     {chessBoardInstance.turnOfPlay === 'white' ? (

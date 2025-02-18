@@ -130,7 +130,20 @@ export class ChessBoard {
             }
             const currentPiece = this.chessBoard[this.previousLine][this.previousColumn].currentPiece;
             this.setPieceToSquare(currentPiece, targetLine, targetColumn);
-            
+
+            if (
+                currentPiece.piece.name === 'pawn' &&
+                !this.checkMate &&
+                this.roomId === 'bot' &&
+                this.turnOfPlay !== this.playerSide &&
+                (
+                    (currentPiece.color === 'white' && currentPiece.l === 0) ||
+                    (currentPiece.color === 'black' && currentPiece.l === 7)
+                )
+            ) {
+                this.chessBoard[targetLine][targetColumn].currentPiece = new ChessPiece(targetLine, targetColumn, currentPiece.color, new ChessPieceQueen(currentPiece.color));
+            }
+
             this.changeModeToSelectMode();
 
             this.checkVerification(this.turnOfPlay);
@@ -187,8 +200,8 @@ export class ChessBoard {
                 this.makeMove(newChessBoard, move);
     
                 const evaluation = this.minimaxAlgorithm(newChessBoard, depth - 1, false, alpha, beta, hasCheck);
-                maxEval = Math.max(maxEval, hasCheck ? evaluation * 1.05 : evaluation);
-                alpha = Math.max(alpha, hasCheck ? evaluation * 1.05 : evaluation);
+                maxEval = Math.max(maxEval, evaluation);
+                alpha = Math.max(alpha, evaluation);
     
                 if (beta <= alpha) {
                     break; // Poda alfa-beta
@@ -202,8 +215,8 @@ export class ChessBoard {
                 this.makeMove(newChessBoard, move);
     
                 const evaluation = this.minimaxAlgorithm(newChessBoard, depth - 1, true, alpha, beta, hasCheck);
-                minEval = Math.min(minEval, hasCheck ? evaluation * 1.05 : evaluation);
-                beta = Math.min(beta, hasCheck ? evaluation * 1.05 : evaluation);
+                minEval = Math.min(minEval, evaluation);
+                beta = Math.min(beta, evaluation);
     
                 if (beta <= alpha) {
                     break; // Poda alfa-beta
@@ -371,7 +384,7 @@ export class ChessBoard {
 
     public makeMove(chessBoard: chessBoardArrayType, move: { from: { line: number, column: number }, to: { line: number, column: number } }) {
         const { from, to } = move;
-        const piece = chessBoard[from.line][from.column].currentPiece;
+        let piece = chessBoard[from.line][from.column].currentPiece;
     
         if (!piece) {
             return;
@@ -381,6 +394,19 @@ export class ChessBoard {
         chessBoard[from.line][from.column].currentPiece = null;
         piece.l = to.line;
         piece.c = to.column;
+
+        if (
+            piece.piece.name === 'pawn' &&
+            this.roomId === 'bot' &&
+            (
+                (piece.color === 'white' && piece.l === 0) ||
+                (piece.color === 'black' && piece.l === 7)
+            )
+        ) {
+            piece = new ChessPiece(to.line, to.column, piece.color, new ChessPieceQueen(piece.color));
+            chessBoard[to.line][to.column].currentPiece = new ChessPiece(to.line, to.column, piece.color, new ChessPieceQueen(piece.color));
+        }
+
     }
     
     public evaluateBoard(chessBoard: chessBoardArrayType, isMaximizingPlayer: boolean): number {
@@ -392,7 +418,7 @@ export class ChessBoard {
                 const value = this.getPieceValue(piece) * 3;
                 evaluation += square.currentPiece.color === this.turnOfPlay ? value : -value;
 
-                if (square.currentPiece.piece.name === 'pawn') {
+                if (square.currentPiece.piece.name !== 'pawn') {
                     const possibleMoves = square.currentPiece.piece.checkPossibleMoves(chessBoard, l, c).flat().length;
                     evaluation += square.currentPiece.color === this.turnOfPlay ? possibleMoves : -possibleMoves;
                 }
